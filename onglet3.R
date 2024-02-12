@@ -10,7 +10,9 @@
 library(shiny)
 
 #definir la data
-datajo <- read.csv("athlete_events.csv")
+datajo <- read.csv("athlete_events.csv", sep = ";", header = TRUE, quote = "\"", stringsAsFactors = FALSE)
+
+
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
