@@ -2,9 +2,11 @@
 
 # install.packages("shiny")
 # install.packages("plotly")
+
 # install.packages("dplyr")
 # install.packages("tidyr")
-library(shiny); library(plotly); library(dplyr); library(tidyr)
+
+library(shiny); library(plotly); library(dplyr); library(tidyr); library(gtranslate)
 
 # On récupère les données
 # JO <- read.csv("C:/Users/remli/Documents/Perso/Cours/4A/OPEN/rendu groupe/athlete_events.csv")
@@ -49,39 +51,44 @@ server <- function(input, output) {
       filter(Season %in% input$Saison &
                Sex %in% input$Genre &
                NOC == input$pays)
-    JO_filt2 <- JO_filt2 %>% select(Year, Medal, City, Team) #On ajoute la colonne City & Team
+    JO_filt2 <- JO_filt2 %>% select(Year, Medal, City) #On ajoute la colonne City
     
     # Calcul du nombre total de médailles pour chaque année
     cmed<- JO_filt2 %>%
       group_by(Year) %>%
       summarize(Bronze = sum(Medal == "Bronze"),
-                Silver = sum(Medal == "Silver"),
-                Gold = sum(Medal == "Gold"),
+                Argent = sum(Medal == "Silver"),
+                Or = sum(Medal == "Gold"),
                 City = first(City))
     
     
     # Transformation des données pour le format long
-    cmedailles <- pivot_longer(cmed, cols = c(Bronze, Silver, Gold),
+    cmedailles <- pivot_longer(cmed, cols = c(Bronze, Argent, Or),
                                names_to = "Medal", values_to = "Count")
-    #Légende nom pays bassé sur le NOC
+    #Légende nom pays bassé sur le NOC + traduction
     NPE <- function(NOC) {
-      NPE <- JO_filt$Team[JO_filt$NOC == NOC][1]
-      return(NPE)
-    }
+      traduction <- tryCatch(
+        {
+          translate(paste("the", unique(JO_filt$Team[JO_filt$NOC == NOC])), to = "fr")
+        },
+        error = function(e) {NOC})
+      return(traduction)
+    } 
     
     # Création du graphique en fonction de la sélection
     plot <- plot_ly(data = cmedailles, x = ~Year, y = ~Count, color = ~Medal,
                     type = "scatter", mode = "lines+markers", line = list(shape = "spline", smoothing = 0.65),
                     text = ~paste(Medal, ":", Count, " médailles", "<br>Année :", Year, "<br> Ville :", City),
-                    hoverinfo = "text+name",
-                    colors = c("Bronze" = "darkgoldenrod", "Silver" = "grey", "Gold" = "gold")) %>%
+                    hoverinfo = "text",
+                    colors = c("Bronze" = "darkgoldenrod", "Argent" = "grey", "Or" = "gold")) %>%
       layout(title = paste("Performances aux Jeux Olympiques,", NPE(input$pays), ":"),
              xaxis = list(title = "Années"),
              yaxis = list(title = "Nombre de Médailles"),
              showlegend = TRUE,
              margin = list(t = 100),
              height = 600,
-             legend = list(orientation = "h", entrywidth = 70, yanchor = "bottom", y = 1.02, xanchor = "right", x = 1)) %>%
+             legend = list(orientation = "h", entrywidth = 70, yanchor = "bottom", y = 1.02, xanchor = "right", x = 1)
+             ) %>%
       config(displayModeBar = TRUE)  # Activer la barre d'options interactive
     
     # Affichage du graphique
