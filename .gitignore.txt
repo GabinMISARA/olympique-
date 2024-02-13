@@ -1,0 +1,10 @@
+# Ignore les fichiers générés par R
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+
+# Ignorer les fichiers et répertoires générés par Shiny
+shinyApp.Rproj
+shinyApp_cache/
+shinyApp.RData
