@@ -11,13 +11,13 @@
 ### Onglet 0 (Alex)
 #### Création d'un premier code pour un planisphère intéractif
 
-### Onglet 1 (Gabin, Adrien)
+### Onglet 1 (Théophile, Arthur)
 #### Création d'un graphique
 
 ### Onglet 2 (Rémy, Tom)
 #### Création d'un graphique
 
-### Onglet 3 (Théophile, Arthur)
+### Onglet 3 (Gabin, Adrien)
 #### Réorganisation et mise en forme des données en .csv
 #### Codage de base des graphiques
 
