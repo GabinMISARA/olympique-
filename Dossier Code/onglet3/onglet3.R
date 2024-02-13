@@ -15,15 +15,6 @@ medal_count <- aggregate(Medal ~ Team + Year, data=datajo, function(x)
   table(factor(x, levels=c("Gold", "Silver", "Bronze"))))
 
 
-bronze <- as.numeric(datajo$Medal = "Bronze")
-argent <- as.numeric(exte$Medal = "Sliver")
-or <- as.numeric(exte$Medal = "Gold")
-
-exte <- hote 
-
-
-
-
 res_3 <- bronze*("nb athlètes/nb tot")
 res_2 <- argent*("nb athlètes/nb tot")
 res_1 <- or*("nb athlètes/nb tot")
@@ -61,6 +52,7 @@ res_h_moy <- res_h/"nb année"
 
 ###### PARTIE GABIN ########
 library(shiny)
+#install.packages("shinyWidgets")
 library(shinyWidgets)
 library(ggplot2)
 
