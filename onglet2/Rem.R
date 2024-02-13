@@ -1,82 +1,95 @@
-#Onglet 2
+# Onglet 2
 
 # install.packages("shiny")
-# install.packages("ggplot2")
 # install.packages("plotly")
 # install.packages("dplyr")
+# install.packages("tidyr")
 
 library(shiny)
-library(ggplot2)
 library(plotly)
 library(dplyr)
+library(tidyr)
 
 # On récupère les données
-JO <- read.csv("https://raw.githubusercontent.com/GabinMISARA/olympique-/main/athlete_events.csv", sep = ";")
+JO <- read.csv("C:/Users/remli/Documents/Perso/Cours/4A/OPEN/rendu groupe/athlete_events.csv")
+# JO <- read.csv("https://raw.githubusercontent.com/GabinMISARA/olympique-/main/athlete_events.csv", sep = ";")
 
 # On filtre les NA
 JO_filt <- JO[complete.cases(JO$Medal), ]
-
 
 # On définit l'interface utilisateur
 ui <- fluidPage(
   # Titre de l'application
   titlePanel("Athlètes"),
   
+  
   # Panneau latéral
   sidebarLayout(
     sidebarPanel(
-      # Case à cocher
-      checkboxInput(inputId = "Summer", label = "Summer", value = TRUE),
-      checkboxInput(inputId = "Winter", label = "Winter", value = TRUE),
+      # Groupes de cases à cocher pour Summer et Winter
+      checkboxGroupInput(inputId = "Saison", label = "Sélectionnez la saison:",
+                         choices = c("Summer", "Winter"),
+                         selected = c("Summer", "Winter"), inline = TRUE),
+      # Groupes de cases à cocher pour Homme et Femme
+      checkboxGroupInput(inputId = "Genre", label = "Sélectionnez le genre:",
+                         choices = c("M", "F"),
+                         selected = c("M", "F"), inline = TRUE),
       tags$br(),  # Saut de ligne
-      # Liste déroulante pour sélectionner le rapport à choisir
-      selectInput(inputId = "choix", label = "Sélectionnez les données à visualiser: ",
-                  selected = "Homme & Femme",
-                  choices = c("Homme & Femme", "Homme uniquement", "Femme uniquement")),
+      # Liste déroulante pour sélectionner un pays
+      selectInput(inputId = "pays", label = "Sélectionnez un pays:", 
+                  choices = unique(JO_filt$NOC),
+                  selected = "FRA"),
     ),
     mainPanel(
-      plotOutput("distPlot")
+      plotlyOutput("interactivePlot")
     )
   )
 )
 
 # On définit le serveur
 server <- function(input, output) {
-  output$distPlot <- renderPlotly({
+  output$interactivePlot <- renderPlotly({
     # Filtrage des données en fonction des choix de l'utilisateur
-    if (!input$Summer) {
-      # Filtre pour la saison été
-      JO_filt <- JO_filt[JO_filt$Season != "Summer", ]
-    }
+    JO_filt_selected <- JO_filt %>%
+      filter(Season %in% input$Saison &
+               Sex %in% input$Genre &
+               NOC == input$pays)
     
-    if (!input$Winter) {
-      # Filtre pour la saison hiver
-      JO_filt <- JO_filt[JO_filt$Season != "Winter", ]
-    }
+    # Ajouter la colonne "City" à JO_filt_selected
+    JO_filt_selected <- JO_filt_selected %>%
+      select(Year, Medal, City, Team)
     
-    # Affiche les données filtrées pour déboguer
-    print(JO_filt)
+    # Calcul du nombre total de médailles pour chaque année
+    medal_counts <- JO_filt_selected %>%
+      group_by(Year) %>%
+      summarize(Bronze = sum(Medal == "Bronze"),
+                Silver = sum(Medal == "Silver"),
+                Gold = sum(Medal == "Gold"),
+                City = first(City),  # Assuming City is the same for a given year
+                Team = first(Team))  # 
+    
+    # Transformation des données pour le format long
+    medal_counts_long <- pivot_longer(medal_counts, cols = c(Bronze, Silver, Gold),
+                                      names_to = "Medal", values_to = "Count")
     
     # Création du graphique en fonction de la sélection
-    if (input$choix == "Homme & Femme") {
-      plot_ly(data = JO_filt %>% distinct(NOC, Sex, .keep_all = TRUE),
-              x = ~NOC, type = 'bar', color = ~Sex) %>%
-        layout(title = 'Performances aux Jeux Olympiques par Pays',
-               xaxis = list(title = 'Pays'),
-               yaxis = list(title = 'Nombre de Médailles'))
-    } else if (input$choix == "Homme uniquement") {
-      JO_homme <- JO_filt %>% filter(Sex == "M") %>% distinct(NOC, .keep_all = TRUE)
-      plot_ly(data = JO_homme, x = ~NOC, type = 'bar', color = ~Medal) %>%
-        layout(title = 'Performances aux Jeux Olympiques par Pays (Hommes uniquement)',
-               xaxis = list(title = 'Pays'),
-               yaxis = list(title = 'Nombre de Médailles'))
-    } else if (input$choix == "Femme uniquement") {
-      JO_femme <- JO_filt %>% filter(Sex == "F") %>% distinct(NOC, .keep_all = TRUE)
-      plot_ly(data = JO_femme, x = ~NOC, type = 'bar', color = ~Medal) %>%
-        layout(title = 'Performances aux Jeux Olympiques par Pays (Femmes uniquement)',
-               xaxis = list(title = 'Pays'),
-               yaxis = list(title = 'Nombre de Médailles'))
-    }
+    plot <- plot_ly(data = medal_counts_long, x = ~Year, y = ~Count, color = ~Medal,
+                    type = "scatter", mode = "lines+markers", line = list(shape = "spline", smoothing = 1),
+                    text = ~paste(Medal, ":", Count, " médailles", "<br>Année :", Year, "<br> Ville :", City),
+                    hoverinfo = "text+name",
+                    colors = c("Bronze" = "darkgoldenrod", "Silver" = "grey", "Gold" = "gold"),
+                    legendgroup = ~Medal) %>%
+      layout(title = paste("Performances aux Jeux Olympiques pour,", input$pays, ":"),
+             xaxis = list(title = "Années"),
+             yaxis = list(title = "Nombre de Médailles"),
+             showlegend = TRUE,
+             margin = list(t = 100),
+             height = 600,
+             legend = list(orientation = "h", entrywidth = 70, yanchor = "bottom", y = 1.02, xanchor = "right", x = 1)) %>%
+      config(displayModeBar = TRUE)  # Activer la barre d'options interactive
+    
+    # Affichage du graphique
+    print(plot)
   })
 }
 
