@@ -18,8 +18,6 @@
 #### Création d'un graphique
 
 ### Onglet 3 (Théophile, Arthur)
-
-### Onglet 3
 #### Réorganisation et mise en forme des données en .csv
 #### Codage de base des graphiques
 
