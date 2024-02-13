@@ -5,7 +5,7 @@
 #### Création du Github de groupe "olympique-" (Gabin)
 #### identification des jeux de données (Adrien)
 #### Plan de répartition des tâches (Rémy)
-#### Cahier des charges (Adrien, Théophile et Arthur)
+#### Cahier des charges (Adrien, Théophile,Arthur, Tom)
 #### Carnet de bord (Adrien)
 
 ### Onglet 0 (Alex)
