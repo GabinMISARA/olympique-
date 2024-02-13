@@ -1,18 +1,11 @@
-# Onglet 2
-
-# install.packages("shiny")
-# install.packages("plotly")
-
-# install.packages("dplyr")
-# install.packages("tidyr")
-
+### Onglet 2
+# Chargement des packages nécessaires
 library(shiny); library(plotly); library(dplyr); library(tidyr); library(gtranslate)
 
-# On récupère les données
-# JO <- read.csv("C:/Users/remli/Documents/Perso/Cours/4A/OPEN/rendu groupe/athlete_events.csv")
+# Chargement des données depuis notre fichier CSV en ligne
 JO <- read.csv("https://raw.githubusercontent.com/GabinMISARA/olympique-/ca403a2a076306fa328dfe257c889fd35e2fef4e/Dossier%20Code/athlete_events.csv", sep = ";")
 
-# On filtre les NA
+# Filtre les lignes avec des valeurs manquantes dans la colonne Medal
 JO_filt <- JO[complete.cases(JO$Medal), ]
 
 # On définit l'interface utilisateur
@@ -20,14 +13,14 @@ ui <- fluidPage(
   # Titre de l'application
   titlePanel("Athlètes"),
   
-  # Panneau latéral
+  # Mise en page avec un panneau latéral et un panneau principal
   sidebarLayout(
     sidebarPanel(
-      # Groupes de cases à cocher pour Summer et Winter
+      # Cases à cocher pour sélectionner la saison (été/hiver)
       checkboxGroupInput(inputId = "Saison", label = "Sélectionnez la saison:",
                          choices = c("Été" = "Summer", "Hiver" = "Winter"),
                          selected = c("Summer", "Winter"), inline = TRUE),
-      # Groupes de cases à cocher pour Homme et Femme
+      # Cases à cocher pour sélectionner le genre (homme/femme)
       checkboxGroupInput(inputId = "Genre", label = "Sélectionnez le genre:",
                          choices = c("Homme"="M", "Femme"="F"),
                          selected = c("M", "F"), inline = TRUE),
@@ -36,7 +29,7 @@ ui <- fluidPage(
       selectInput(inputId = "pays", label = "Sélectionnez un pays:", 
                   choices = unique(JO_filt$NOC),
                   selected = "FRA")
-    ),
+      ),
     mainPanel(
       plotlyOutput("interactivePlot")
     )
@@ -45,56 +38,59 @@ ui <- fluidPage(
 
 # On définit le serveur
 server <- function(input, output) {
+  # Définition de la sortie interactive dans Shiny
   output$interactivePlot <- renderPlotly({
-    # Filtrage des données en fonction des choix de l'utilisateur
-    JO_filt2 <- JO_filt %>%
-      filter(Season %in% input$Saison &
-               Sex %in% input$Genre &
-               NOC == input$pays)
-    JO_filt2 <- JO_filt2 %>% select(Year, Medal, City) #On ajoute la colonne City
     
-    # Calcul du nombre total de médailles pour chaque année
-    cmed<- JO_filt2 %>%
+    # Filtre les données en fonction de la sélection faites par l'utilisateur
+    JO_filt2 <- JO_filt %>%
+      filter(Season %in% input$Saison & 
+               Sex %in% input$Genre & 
+               NOC == input$pays)
+    
+    # Sélection des colonnes Year/Année, Medal/Médaille et City/Ville
+    JO_filt2 <- JO_filt2 %>% select(Year, Medal, City)
+    
+    # Agrégation des données par année avec le nombre de médailles de chaque type
+    cmed <- JO_filt2 %>%
       group_by(Year) %>%
       summarize(Bronze = sum(Medal == "Bronze"),
                 Argent = sum(Medal == "Silver"),
                 Or = sum(Medal == "Gold"),
                 City = first(City))
     
-    
-    # Transformation des données pour le format long
+    # Transformation des données en format long pour une utilisation facile dans Plotly
     cmedailles <- pivot_longer(cmed, cols = c(Bronze, Argent, Or),
                                names_to = "Medal", values_to = "Count")
-    #Légende nom pays bassé sur le NOC + traduction
+    
+    # Fonction pour traduire le nom du pays (NOC) en français avec une gestion des erreurs
     NPE <- function(NOC) {
       traduction <- tryCatch(
         {
-          translate(paste("the", unique(JO_filt$Team[JO_filt$NOC == NOC])), to = "fr")
+          translate(paste("for the", unique(JO_filt$Team[JO_filt$NOC == NOC])), to = "fr")
         },
         error = function(e) {NOC})
       return(traduction)
     } 
     
-    # Création du graphique en fonction de la sélection
+    # Création du graphique interactif avec Plotly
     plot <- plot_ly(data = cmedailles, x = ~Year, y = ~Count, color = ~Medal,
                     type = "scatter", mode = "lines+markers", line = list(shape = "spline", smoothing = 0.65),
                     text = ~paste(Medal, ":", Count, " médailles", "<br>Année :", Year, "<br> Ville :", City),
                     hoverinfo = "text",
                     colors = c("Bronze" = "darkgoldenrod", "Argent" = "grey", "Or" = "gold")) %>%
-      layout(title = paste("Performances aux Jeux Olympiques,", NPE(input$pays), ":"),
+      layout(title = paste("Performances aux Jeux Olympiques", NPE(input$pays), ":"),
              xaxis = list(title = "Années"),
              yaxis = list(title = "Nombre de Médailles"),
              showlegend = TRUE,
              margin = list(t = 100),
              height = 600,
              legend = list(orientation = "h", entrywidth = 70, yanchor = "bottom", y = 1.02, xanchor = "right", x = 1)
-             ) %>%
+      ) %>%
       config(displayModeBar = TRUE)  # Activer la barre d'options interactive
-    
-    # Affichage du graphique
+    # Affiche le graphique
     print(plot)
   })
 }
 
-# Exécution de l'application Shiny
+# Lancement de l'application Shiny avec l'interface utilisateur (ui) et le serveur (server) définis précédemment
 shinyApp(ui, server)
