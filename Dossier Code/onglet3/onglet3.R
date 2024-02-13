@@ -1,16 +1,28 @@
 git # https://github.com/GabinMISARA/olympique-
 ##### Partie ADRIEN ######
+
+datajo <- read.csv("https://raw.githubusercontent.com/GabinMISARA/olympique-/ca403a2a076306fa328dfe257c889fd35e2fef4e/Dossier%20Code/athlete_events.csv", sep = ";")
+
 # Liste des pays hôtes
-hote <- datajo$ "NOC = Pays"
+hote <- unique(datajo$Host.country)
 
 # Résultats historiques rapportés au nombre d'athlètes du pays lui même 
 #rapporté au nombre total d'athlètes participants
-  
-exte <- datajo$ "NOC ≠ Pays"
 
-bronze <- as.numeric(exte$Medal = "Bronze")
+# Compter le nombre de médailles pour chaque équipe
+
+medal_count <- aggregate(Medal ~ Team + Year, data=datajo, function(x) 
+  table(factor(x, levels=c("Gold", "Silver", "Bronze"))))
+
+
+bronze <- as.numeric(datajo$Medal = "Bronze")
 argent <- as.numeric(exte$Medal = "Sliver")
 or <- as.numeric(exte$Medal = "Gold")
+
+exte <- hote 
+
+
+
 
 res_3 <- bronze*("nb athlètes/nb tot")
 res_2 <- argent*("nb athlètes/nb tot")
