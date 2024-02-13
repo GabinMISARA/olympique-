@@ -28,11 +28,11 @@ ui <- fluidPage(
     sidebarPanel(
       # Groupes de cases à cocher pour Summer et Winter
       checkboxGroupInput(inputId = "Saison", label = "Sélectionnez la saison:",
-                         choices = c("Summer", "Winter"),
+                         choices = c("Été" = "Summer", "Hiver" = "Winter"),
                          selected = c("Summer", "Winter"), inline = TRUE),
       # Groupes de cases à cocher pour Homme et Femme
       checkboxGroupInput(inputId = "Genre", label = "Sélectionnez le genre:",
-                         choices = c("M", "F"),
+                         choices = c("Homme"="M", "Femme"="F"),
                          selected = c("M", "F"), inline = TRUE),
       tags$br(),  # Saut de ligne
       # Liste déroulante pour sélectionner un pays
@@ -65,8 +65,7 @@ server <- function(input, output) {
       summarize(Bronze = sum(Medal == "Bronze"),
                 Silver = sum(Medal == "Silver"),
                 Gold = sum(Medal == "Gold"),
-                City = first(City),  # Assuming City is the same for a given year
-                Team = first(Team))  # 
+                City = first(City))  # Assuming City is the same for a given year
     
     # Transformation des données pour le format long
     medal_counts_long <- pivot_longer(medal_counts, cols = c(Bronze, Silver, Gold),
