@@ -1,10 +1,11 @@
-# Ignore les fichiers générés par R
+# Ignore les fichiers g≈Ωn≈Ωr≈Ωs par R
 .Rproj.user/
 .Rhistory
 .RData
 .Ruserdata
+.DS_Store
 
-# Ignorer les fichiers et répertoires générés par Shiny
+# Ignorer les fichiers et r≈Ωpertoires g≈Ωn≈Ωr≈Ωs par Shiny
 shinyApp.Rproj
 shinyApp_cache/
 shinyApp.RData
