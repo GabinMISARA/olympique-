@@ -6,7 +6,7 @@
 # install.packages("dplyr")
 # install.packages("tidyr")
 
-library(shiny); library(plotly); library(dplyr); library(tidyr)
+library(shiny); library(plotly); library(dplyr); library(tidyr); library(gtranslate)
 
 # On récupère les données
 # JO <- read.csv("C:/Users/remli/Documents/Perso/Cours/4A/OPEN/rendu groupe/athlete_events.csv")
