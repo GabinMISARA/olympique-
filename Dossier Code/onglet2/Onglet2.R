@@ -69,7 +69,7 @@ server <- function(input, output) {
     NPE <- function(NOC) {
       traduction <- tryCatch(
         {
-          translate(unique(JO_filt$Team[JO_filt$NOC == NOC]), to = "fr")
+          translate(paste("the", unique(JO_filt$Team[JO_filt$NOC == NOC])), to = "fr")
         },
         error = function(e) {NOC})
       return(traduction)
