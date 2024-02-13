@@ -29,7 +29,7 @@ ui <- fluidPage(
       selectInput(inputId = "pays", label = "Sélectionnez un pays:", 
                   choices = unique(JO_filt$NOC),
                   selected = "FRA")
-    ),
+      ),
     mainPanel(
       plotlyOutput("interactivePlot")
     )
@@ -87,7 +87,6 @@ server <- function(input, output) {
              legend = list(orientation = "h", entrywidth = 70, yanchor = "bottom", y = 1.02, xanchor = "right", x = 1)
       ) %>%
       config(displayModeBar = TRUE)  # Activer la barre d'options interactive
-    
     # Affiche le graphique
     print(plot)
   })
