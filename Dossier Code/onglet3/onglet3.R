@@ -1,113 +1,101 @@
-git # https://github.com/GabinMISARA/olympique-
-##### Partie ADRIEN ######
-
-datajo <- read.csv("https://raw.githubusercontent.com/GabinMISARA/olympique-/ca403a2a076306fa328dfe257c889fd35e2fef4e/Dossier%20Code/athlete_events.csv", sep = ";")
-
-# Liste des pays hôtes
-hote <- unique(datajo$Host.country)
-
-# Résultats historiques rapportés au nombre d'athlètes du pays lui même 
-#rapporté au nombre total d'athlètes participants
-
-# Compter le nombre de médailles pour chaque équipe
-
-medal_count <- aggregate(Medal ~ Team + Year, data=datajo, function(x) 
-  table(factor(x, levels=c("Gold", "Silver", "Bronze"))))
-
-
-res_3 <- bronze*("nb athlètes/nb tot")
-res_2 <- argent*("nb athlètes/nb tot")
-res_1 <- or*("nb athlètes/nb tot")
-
-res_tot <- res_1 + res_2 + res_3
-
-# Moyenne des résultats historiques
-
-res_moy <- res_tot/"nb année"
-
-# Résultats quand hôte rapportés au nombre d'athlètes du pays lui même 
-#rapporté au nombre total d'athlètes participants
-  
-h_bronze <- as.numeric(hote$Medal = "Bronze")
-h_argent <- as.numeric(hote$Medal = "Silver")
-h_or <- as.numeric(hote$Medal = "Gold")
-
-res_h3 <- h_bronze*("nb athlètes/nb tot")
-res_h2 <- h_argent*("nb athlètes/nb tot")
-res_h1 <- h_or*("nb athlètes/nb tot")
-
-res_h_tot <- res_h1 + res_h2 + res_h3
-
-# Moyenne des résultats quand hôte
-
-res_h_moy <- res_h/"nb année"
-
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    https://shiny.posit.co/
-#
-
-###### PARTIE GABIN ########
+# Chargement des packages nécessaires
 library(shiny)
-#install.packages("shinyWidgets")
-library(shinyWidgets)
-library(ggplot2)
+library(plotly)
+library(dplyr)
+library(tidyr)
 
+# Chargement des données depuis le fichier CSV en ligne
+datajo <- read.csv("athlete_events.csv", sep = ";")
+datajo$Medal[is.na(datajo$Medal)] <- 0
+
+# Partie 1: Liste des pays hôtes
+hosts <- unique(datajo$Host.country)
+
+# Partie 2: Calcul du nombre total d'athlètes par année, saison et pays hôte
+athletes_count_total <- aggregate(cbind(Nb_athletes_Total = seq_along(Year)) ~ Year + Season + Host.country, data = datajo, length)
+
+# Partie 3: Filtrer les données pour inclure uniquement les pays hôtes
+datajo_hote <- datajo[datajo$Team %in% hosts, ]
+
+# Partie 4: Calcul du nombre d'athlètes par année, saison, pays hôte
+athletes_count_host <- aggregate(cbind(Nb_athletes_Host = seq_along(Year)) ~ Year + Season + Team + Host.country, data = datajo_hote, length)
+
+# Partie 5: Fusion des comptes d'athlètes total et par pays hôte
+tableau_final_hote <- merge(athletes_count_total, athletes_count_host, by = c("Year", "Season", "Host.country"), all.x = TRUE)
+
+# Partie 6: Calcul du pourcentage de participation pour chaque pays hôte
+tableau_final_hote$Pourcentage_Participation <- (tableau_final_hote$Nb_athletes_Host / tableau_final_hote$Nb_athletes_Total) * 100
+
+# Partie 7: Compter le nombre de médailles pour chaque équipe hôte
+datajo <- datajo %>%
+  mutate(Medal_Gold = as.numeric(Medal == "Gold"),
+         Medal_Silver = as.numeric(Medal == "Silver"),
+         Medal_Bronze = as.numeric(Medal == "Bronze"))
+
+medal_count <- datajo %>%
+  group_by(Team, Year, Season, Host.country) %>%
+  summarise(Medal_Gold = sum(Medal_Gold),
+            Medal_Silver = sum(Medal_Silver),
+            Medal_Bronze = sum(Medal_Bronze),
+            total_Medals = sum(Medal_Gold, Medal_Silver, Medal_Bronze))
+
+# Partie 8: Fusionner avec le tableau de participation
+tableau_final_hote <- merge(tableau_final_hote, medal_count, by = c("Year", "Season", "Team", "Host.country"), all.x = TRUE)
+
+# Partie 9: Arrondir les valeurs des pourcentages
+tableau_final_hote$Pourcentage_Participation <- round(tableau_final_hote$Pourcentage_Participation, 2)
+
+# Rajouter la condition pour les points violets et plus gros
+tableau_final_hote$marker_color <- ifelse(tableau_final_hote$Team == tableau_final_hote$Host.country, "violet", "transparent")
+tableau_final_hote$marker_size <- ifelse(tableau_final_hote$Team == tableau_final_hote$Host.country, 15, 10)
+
+# Renommer les colonnes
+names(tableau_final_hote) <- c("Year", "Season", "Team", "Host.country", "Nb_athletes_Total", "Nb_athletes_Host", "Pourcentage_Participation", "Medal_Gold", "Medal_Silver", "Medal_Bronze", "total_Medals", "marker_color", "marker_size")
+
+# L'interface utilisateur (UI)
 ui <- fluidPage(
-  
-  # Titre de l'application
-  titlePanel("Sélection de Pays"),
-  
-  # Sélection de pays
+  titlePanel("Performances aux Jeux Olympiques"),
   sidebarLayout(
     sidebarPanel(
-      # Widget de sélection de pays
-      pickerInput(
-        inputId = "pays",
-        label = "Sélectionnez un pays :",
-        choices = c("","France", "Germany", "United Kingdom", "United States"), #remplacer par hote
-        selected = NULL,
-        options = list(
-          `actions-box` = TRUE,
-          `selected-text-format` = "count > 2",
-          liveSearch = TRUE,
-          noneSelectedText = NULL
-        )
-      )
+      checkboxGroupInput(inputId = "Saison", label = "Sélectionnez la saison:", choices = c("Été" = "Summer", "Hiver" = "Winter"), selected = c("Summer", "Winter"), inline = TRUE),
+      tags$br(),
+      selectInput(inputId = "pays", label = "Sélectionnez un pays:", choices = unique(tableau_final_hote$Team), selected = "France")
     ),
     mainPanel(
-      # Affichage des informations sélectionnées
-      textOutput("pays_output"),
-      plotOutput("hist")
+      plotlyOutput("interactivePlot")
     )
   )
 )
 
+# Le serveur
 server <- function(input, output) {
-  # Renvoie le pays sélectionné
-  output$pays_output <- renderText({
-    if (input$pays == "") {
-      "Aucun pays sélectionné"
-    } else {
-    }
-  })
-  
-  output$hist <- renderPlot({
-    req(input$pays)
-    pays_data <- data[datajo$Pays == input$pays, ]
-    ggplot(pays_data, aes(x = factor(Year), y = nb_medailles,fill = factor(pays_accueil))) +
-      geom_bar(stat = "") +
-      scale_fill_manual(values = c("red", "black")) +
-      labs(title = paste("Nombre de Médailles pour", input$selected_country, 
-                         "par Année"),
-           x = "Année", y = "Nombre de Médailles") +
-      theme_minimal()
+  output$interactivePlot <- renderPlotly({
+    tableau_final_hote2 <- tableau_final_hote %>%
+      filter(Season %in% input$Saison & Team == input$pays)
+    
+    plot <- plot_ly(data = tableau_final_hote2, x = ~Year) %>%
+      add_trace(y = ~Medal_Gold, name = "Or", type = "scatter", mode = "markers",
+                text = ~paste("Médailles d'Or :", Medal_Gold, "<br>Année :", Year, "<br> Pays :", Host.country),
+                hoverinfo = "text", marker = list(color = "gold", size = tableau_final_hote2$marker_size, line = list(color = tableau_final_hote2$marker_color))) %>%
+      add_trace(y = ~Medal_Silver, name = "Argent", type = "scatter", mode = "markers",
+                text = ~paste("Médailles d'Argent :", Medal_Silver, "<br>Année :", Year, "<br> Pays :", Host.country),
+                hoverinfo = "text", marker = list(color = "silver", size = tableau_final_hote2$marker_size, line = list(color = tableau_final_hote2$marker_color))) %>%
+      add_trace(y = ~Medal_Bronze, name = "Bronze", type = "scatter", mode = "markers",
+                text = ~paste("Médailles de Bronze :", Medal_Bronze, "<br>Année :", Year, "<br> Pays :", Host.country),
+                hoverinfo = "text", marker = list(color = "brown", size = tableau_final_hote2$marker_size, line = list(color = tableau_final_hote2$marker_color))) %>%
+      add_trace(y = ~Pourcentage_Participation, name = "Pourcentage Participation", type = "scatter", mode = "markers",
+                yaxis = "y2",
+                text = ~paste("Pourcentage de Participation :", Pourcentage_Participation, "%<br>Année :", Year, "<br> Pays :", Host.country),
+                hoverinfo = "text", marker = list(color = "blue", size = tableau_final_hote2$marker_size)) %>%
+      layout(title = paste("Performances aux Jeux Olympiques", input$pays, ":"),
+             xaxis = list(title = "Années"),
+             yaxis = list(title = "Nombre de Médailles", side = "left", showgrid = FALSE),
+             yaxis2 = list(title = "Pourcentage Participation", side = "right", overlaying = "y", showgrid = FALSE),
+             showlegend = TRUE)
+    
+    plot
   })
 }
 
-   
-
+# Exécution de l'application Shiny
 shinyApp(ui = ui, server = server)
