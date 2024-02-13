@@ -4,11 +4,7 @@
 # install.packages("plotly")
 # install.packages("dplyr")
 # install.packages("tidyr")
-
-library(shiny)
-library(plotly)
-library(dplyr)
-library(tidyr)
+library(shiny); library(plotly); library(dplyr); library(tidyr)
 
 # On récupère les données
 JO <- read.csv("C:/Users/remli/Documents/Perso/Cours/4A/OPEN/rendu groupe/athlete_events.csv")
@@ -21,7 +17,6 @@ JO_filt <- JO[complete.cases(JO$Medal), ]
 ui <- fluidPage(
   # Titre de l'application
   titlePanel("Athlètes"),
-  
   
   # Panneau latéral
   sidebarLayout(
@@ -38,7 +33,7 @@ ui <- fluidPage(
       # Liste déroulante pour sélectionner un pays
       selectInput(inputId = "pays", label = "Sélectionnez un pays:", 
                   choices = unique(JO_filt$NOC),
-                  selected = "FRA"),
+                  selected = "FRA")
     ),
     mainPanel(
       plotlyOutput("interactivePlot")
@@ -54,9 +49,8 @@ server <- function(input, output) {
       filter(Season %in% input$Saison &
                Sex %in% input$Genre &
                NOC == input$pays)
-    JO_filt2 <- JO_filt2 %>%
-      select(Year, Medal, City, Team) #On ajoute la colonne City & Team
-
+    JO_filt2 <- JO_filt2 %>% select(Year, Medal, City, Team) #On ajoute la colonne City & Team
+    
     
     # Calcul du nombre total de médailles pour chaque année
     cmed<- JO_filt2 %>%
@@ -64,11 +58,17 @@ server <- function(input, output) {
       summarize(Bronze = sum(Medal == "Bronze"),
                 Silver = sum(Medal == "Silver"),
                 Gold = sum(Medal == "Gold"),
-                City = first(City))  # Assuming City is the same for a given year
+                City = first(City))
+    
     
     # Transformation des données pour le format long
     cmedailles <- pivot_longer(cmed, cols = c(Bronze, Silver, Gold),
-                                      names_to = "Medal", values_to = "Count")
+                               names_to = "Medal", values_to = "Count")
+    #Légende nom pays bassé sur le NOC
+    NPE <- function(NOC) {
+      NPE <- JO_filt$Team[JO_filt$NOC == NOC][1]
+      return(NPE)
+    }
     
     # Création du graphique en fonction de la sélection
     plot <- plot_ly(data = cmedailles, x = ~Year, y = ~Count, color = ~Medal,
@@ -77,7 +77,7 @@ server <- function(input, output) {
                     hoverinfo = "text+name",
                     colors = c("Bronze" = "darkgoldenrod", "Silver" = "grey", "Gold" = "gold"),
                     legendgroup = ~Medal) %>%
-      layout(title = paste("Performances aux Jeux Olympiques pour,", input$pays, ":"),
+      layout(title = paste("Performances aux Jeux Olympiques,", NPE(input$pays), ":"),
              xaxis = list(title = "Années"),
              yaxis = list(title = "Nombre de Médailles"),
              showlegend = TRUE,
