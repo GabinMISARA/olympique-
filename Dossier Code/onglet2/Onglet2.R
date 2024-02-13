@@ -2,10 +2,8 @@
 # Chargement des packages nécessaires
 library(shiny); library(plotly); library(dplyr); library(tidyr); library(gtranslate)
 
-# Chargement des données depuis notre fichier CSV en ligne
+# Chargement des données depuis notre fichier CSV en ligne + on filtre les lignes avec des valeurs manquantes
 JO <- read.csv("https://raw.githubusercontent.com/GabinMISARA/olympique-/ca403a2a076306fa328dfe257c889fd35e2fef4e/Dossier%20Code/athlete_events.csv", sep = ";")
-
-# Filtre les lignes avec des valeurs manquantes dans la colonne Medal
 JO_filt <- JO[complete.cases(JO$Medal), ]
 
 # On définit l'interface utilisateur
@@ -14,23 +12,26 @@ ui <- fluidPage(
   tags$head(
     tags$style(HTML("
       body {
-        background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Olympic_flag.svg/2560px-Olympic_flag.svg.png'); /* Remplacez l'URL par l'URL de votre image */
+        background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Olympic_flag.svg/2560px-Olympic_flag.svg.png');
         background-size: 100px;
-        background-position:right top;
+        background-position: right top;
         background-repeat: no-repeat;
       }
     "))
   ),
   # Titre de l'application
-  titlePanel("Athlètes"),
+  titlePanel("Évolution des médailles aux JO"),
   
   # Mise en page avec un panneau latéral et un panneau principal
   sidebarLayout(
     sidebarPanel(
+      tags$style(".well {background-color:#CFB095;}"), #change la couleur du fond
+      tags$h3("Paramètres de filtrage"),
       # Cases à cocher pour sélectionner la saison (été/hiver)
       checkboxGroupInput(inputId = "Saison", label = "Sélectionnez la saison:",
                          choices = c("Été" = "Summer", "Hiver" = "Winter"),
                          selected = c("Summer", "Winter"), inline = TRUE),
+      tags$br(),   # Saut de ligne
       # Cases à cocher pour sélectionner le genre (homme/femme)
       checkboxGroupInput(inputId = "Genre", label = "Sélectionnez le genre:",
                          choices = c("Homme"="M", "Femme"="F"),
@@ -39,8 +40,9 @@ ui <- fluidPage(
       # Liste déroulante pour sélectionner un pays
       selectInput(inputId = "pays", label = "Sélectionnez un pays:", 
                   choices = unique(JO_filt$NOC),
-                  selected = "FRA")
-      ),
+                  selected = "FRA"),
+      tags$h5("Cliquez sur la légende pour isoler un type de médailles")
+    ),
     mainPanel(
       plotlyOutput("interactivePlot")
     )
