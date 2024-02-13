@@ -8,14 +8,16 @@
 #### Cahier des charges (Adrien, Théophile et Arthur)
 #### Carnet de bord (Adrien)
 
-### Onglet 0
+### Onglet 0 (Alex)
 #### Création d'un premier code pour un planisphère intéractif
 
-### Onglet 1
+### Onglet 1 (Gabin, Adrien)
 #### Création d'un graphique
 
-### Onglet 2
+### Onglet 2 (Rémy, Tom)
 #### Création d'un graphique
+
+### Onglet 3 (Théophile, Arthur)
 
 ### Onglet 3
 #### Réorganisation et mise en forme des données en .csv
