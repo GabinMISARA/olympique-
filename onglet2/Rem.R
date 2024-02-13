@@ -50,17 +50,16 @@ ui <- fluidPage(
 server <- function(input, output) {
   output$interactivePlot <- renderPlotly({
     # Filtrage des données en fonction des choix de l'utilisateur
-    JO_filt_selected <- JO_filt %>%
+    JO_filt2 <- JO_filt %>%
       filter(Season %in% input$Saison &
                Sex %in% input$Genre &
                NOC == input$pays)
-    
-    # Ajouter la colonne "City" à JO_filt_selected
-    JO_filt_selected <- JO_filt_selected %>%
-      select(Year, Medal, City, Team)
+    JO_filt2 <- JO_filt2 %>%
+      select(Year, Medal, City, Team) #On ajoute la colonne City & Team
+
     
     # Calcul du nombre total de médailles pour chaque année
-    medal_counts <- JO_filt_selected %>%
+    cmed<- JO_filt2 %>%
       group_by(Year) %>%
       summarize(Bronze = sum(Medal == "Bronze"),
                 Silver = sum(Medal == "Silver"),
@@ -68,11 +67,11 @@ server <- function(input, output) {
                 City = first(City))  # Assuming City is the same for a given year
     
     # Transformation des données pour le format long
-    medal_counts_long <- pivot_longer(medal_counts, cols = c(Bronze, Silver, Gold),
+    cmedailles <- pivot_longer(cmed, cols = c(Bronze, Silver, Gold),
                                       names_to = "Medal", values_to = "Count")
     
     # Création du graphique en fonction de la sélection
-    plot <- plot_ly(data = medal_counts_long, x = ~Year, y = ~Count, color = ~Medal,
+    plot <- plot_ly(data = cmedailles, x = ~Year, y = ~Count, color = ~Medal,
                     type = "scatter", mode = "lines+markers", line = list(shape = "spline", smoothing = 1),
                     text = ~paste(Medal, ":", Count, " médailles", "<br>Année :", Year, "<br> Ville :", City),
                     hoverinfo = "text+name",
