@@ -1,4 +1,11 @@
 # Chargement des packages nécessaires
+library(shiny); library(plotly); library(dplyr); library(tidyr)
+
+# Chargement des données depuis le fichier CSV en ligne
+JO <- read.csv("https://raw.githubusercontent.com/GabinMISARA/olympique-/ca403a2a076306fa328dfe257c889fd35e2fef4e/Dossier%20Code/athlete_events.csv", sep = ";")
+
+
+# Chargement des packages nécessaires
 library(shiny)
 library(plotly)
 library(dplyr)
@@ -237,5 +244,7 @@ server <- function(input, output) {
 #### Remplacer le nom des pays en français dans le titre du ggplot
 #### Création de l'histogramme avec Plotly
 #### À la place des couleurs, remplir les barres en 3 parties représentant le % de chaque médaille
+
+
 
 
