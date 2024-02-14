@@ -85,7 +85,6 @@ tableau_final_hote$marker_size <- ifelse(tableau_final_hote$Team == tableau_fina
 # Renommer les colonnes
 names(tableau_final_hote) <- c("Year", "Season", "Team", "Host.country", "Nb_athletes_Total", "Nb_athletes_Host", "Pourcentage_Participation", "Medal_Gold", "Medal_Silver", "Medal_Bronze", "total_Medals", "marker_color", "marker_size")
 
-
 ### Interface Utilisateur
 # Define UI for application that draws a histogram
 fluidPage(
@@ -98,83 +97,83 @@ fluidPage(
     background-repeat: no-repeat;
   }'))
   ),
-    titlePanel("Résultats aux Jeux Olympiques sur 120 ans"),
-    tabsetPanel(
-### Onglet 0 -
-      tabPanel("Nombre de médailles d'or gagné ",
-               leafletOutput("map", width = "100%", height = "600px")
-      ),
-      
-### Onglet 1 -
-      tabPanel("Histogramme", 
-               sidebarLayout(
-                 sidebarPanel(
-                   tags$style(".well {background-color:#CFB095;}"), #change la couleur du fond
-                   tags$h4("Paramètres de filtrage"),
-                   tags$br(),   # Saut de ligne
-                   sliderInput("annee_slider", "Sélectionnez une année :", 
-                               min = first_year, 
-                               max = max(JO$Year, na.rm = TRUE),
-                               value = c(first_year, max(JO$Year, na.rm = TRUE))),
-                   tags$br(),   # Saut de ligne
-                   selectInput("sport_select", "Sélectionnez un sport :", 
-                               choices = c("Tous", unique(JO$Sport))),
-                   selectInput("country_select", "Sélectionnez un pays :",
-                               choices = c("Tous", unique_countries)),
-                   width = 3
-                 ),
-                 mainPanel(
-                   plotOutput("graphique_global")
-                 )
-               )
-  ),
-
-### Onglet 2 -
-      tabPanel("Évolution des médailles",
-      
-      # Mise en page avec un panneau latéral et un panneau principal
-      sidebarLayout(
-        sidebarPanel(
-          tags$style(".well {background-color:#CFB095;}"), #change la couleur du fond
-          tags$h4("Paramètres de filtrage"),
-          tags$br(),   # Saut de ligne
-          # Cases à cocher pour sélectionner la saison (été/hiver)
-          checkboxGroupInput(inputId = "Saison", label = "Sélectionnez la saison:",
-                             choices = c("Été" = "Summer", "Hiver" = "Winter"),
-                             selected = c("Summer", "Winter"), inline = TRUE),
-          # Cases à cocher pour sélectionner le genre (homme/femme)
-          checkboxGroupInput(inputId = "Genre", label = "Sélectionnez le genre:",
-                             choices = c("Homme"="M", "Femme"="F"),
-                             selected = c("M", "F"), inline = TRUE),
-          tags$br(),  # Saut de ligne
-          # Liste déroulante pour sélectionner un pays
-          selectInput(inputId = "pays", label = "Sélectionnez un pays:", 
-                      choices = unique(JO_filt$NOC),
-                      selected = "FRA"),
-          tags$h6("Cliquer sur la légende sélectionne le type de médaille"),
-          width = 3
-        ),
-        mainPanel(
-          plotlyOutput("interactivePlot")
-        )
-      )
+  titlePanel("Résultats aux Jeux Olympiques sur 120 ans"),
+  tabsetPanel(
+    ### Onglet 0 - Accueil, carte
+    tabPanel("Nombre de médailles d'or gagné ",
+             leafletOutput("map", width = "100%", height = "600px")
     ),
-
-### Onglet 3 -
-      tabPanel("Suivi des performances",   titlePanel("Performances aux Jeux Olympiques"),
-               sidebarLayout(
-                 sidebarPanel(
-                   tags$h4("Paramètres de filtrage"),
-                   tags$br(),   # Saut de ligne
-                   checkboxGroupInput(inputId = "Saison2", label = "Sélectionnez la saison:", choices = c("Été" = "Summer", "Hiver" = "Winter"), selected = c("Summer", "Winter"), inline = TRUE),
-                   tags$br(),
-                   selectInput(inputId = "pays2", label = "Sélectionnez un pays:", choices = unique(tableau_final_hote$Team), selected = "Australia"),
-                   width = 3
-                 ),
-                 mainPanel(
-                   plotlyOutput("interactivePlot2")
-                 )
-               )),
-      tabPanel("A la maison on est champion ? ", "Contenu de l'onglet 4")
-    )
+    
+    ### Onglet 1 - Histogramme
+    tabPanel("Histogramme", titlePanel(" "),
+             sidebarLayout(
+               sidebarPanel(
+                 tags$style(".well {background-color:#CFB095;}"), #change la couleur du fond
+                 tags$h4("Paramètres de filtrage"),
+                 tags$br(),   # Saut de ligne
+                 sliderInput("annee_slider", "Sélectionnez une année :", 
+                             min = first_year, 
+                             max = max(JO$Year, na.rm = TRUE),
+                             value = c(first_year, max(JO$Year, na.rm = TRUE))),
+                 tags$br(),   # Saut de ligne
+                 selectInput("sport_select", "Sélectionnez un sport :", 
+                             choices = c("Tous", unique(JO$Sport))),
+                 selectInput("country_select", "Sélectionnez un pays :",
+                             choices = c("Tous", unique_countries)),
+                 width = 3
+               ),
+               mainPanel(
+                 plotOutput("graphique_global")
+               )
+             )
+    ),
+    
+    ### Onglet 2 - Évolution des médailles
+    tabPanel("Évolution des médailles", titlePanel(" "),
+             
+             # Mise en page avec un panneau latéral et un panneau principal
+             sidebarLayout(
+               sidebarPanel(
+                 tags$style(".well {background-color:#CFB095;}"), #change la couleur du fond
+                 tags$h4("Paramètres de filtrage"),
+                 tags$br(),   # Saut de ligne
+                 # Cases à cocher pour sélectionner la saison (été/hiver)
+                 checkboxGroupInput(inputId = "Saison", label = "Sélectionnez la saison:",
+                                    choices = c("Été" = "Summer", "Hiver" = "Winter"),
+                                    selected = c("Summer", "Winter"), inline = TRUE),
+                 # Cases à cocher pour sélectionner le genre (homme/femme)
+                 checkboxGroupInput(inputId = "Genre", label = "Sélectionnez le genre:",
+                                    choices = c("Homme"="M", "Femme"="F"),
+                                    selected = c("M", "F"), inline = TRUE),
+                 tags$br(),  # Saut de ligne
+                 # Liste déroulante pour sélectionner un pays
+                 selectInput(inputId = "pays", label = "Sélectionnez un pays:", 
+                             choices = unique(JO_filt$NOC),
+                             selected = "FRA"),
+                 tags$h6("Cliquer sur la légende sélectionne le type de médaille"),
+                 width = 3
+               ),
+               mainPanel(
+                 plotlyOutput("interactivePlot")
+               )
+             )
+    ),
+    
+    ### Onglet 3 - Suivi des performances
+    tabPanel("Suivi des performances",   titlePanel(" "),
+             sidebarLayout(
+               sidebarPanel(
+                 tags$h4("Paramètres de filtrage"),
+                 tags$br(),   # Saut de ligne
+                 checkboxGroupInput(inputId = "Saison2", label = "Sélectionnez la saison:", choices = c("Été" = "Summer", "Hiver" = "Winter"), selected = c("Summer", "Winter"), inline = TRUE),
+                 tags$br(),
+                 selectInput(inputId = "pays2", label = "Sélectionnez un pays:", choices = unique(tableau_final_hote$Team), selected = "Australia"),
+                 width = 3
+               ),
+               mainPanel(
+                 plotlyOutput("interactivePlot2")
+               )
+             )),
+    tabPanel("A la maison on est champion ? ", "Contenu de l'onglet 4")
   )
+)
