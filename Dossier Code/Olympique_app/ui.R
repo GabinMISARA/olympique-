@@ -115,7 +115,6 @@ fluidPage(
                              min = first_year, 
                              max = max(JO$Year, na.rm = TRUE),
                              value = c(first_year, max(JO$Year, na.rm = TRUE))),
-                 tags$br(),   # Saut de ligne
                  selectInput("sport_select", "Sélectionnez un sport :", 
                              choices = c("Tous", unique(JO$Sport))),
                  selectInput("country_select", "Sélectionnez un pays :",
@@ -123,7 +122,7 @@ fluidPage(
                  width = 3
                ),
                mainPanel(
-                 plotOutput("graphique_global")
+                 plotlyOutput("graphique_global")
                )
              )
     ),
