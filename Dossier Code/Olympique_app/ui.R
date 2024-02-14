@@ -3,7 +3,7 @@ library(shiny); library(leaflet); library(ggplot2); library(dplyr); library(plot
 ###Initialisation
 
 ### DATA global
-JO <- read.csv("https://raw.githubusercontent.com/GabinMISARA/olympique-/ca403a2a076306fa328dfe257c889fd35e2fef4e/Dossier%20Code/athlete_events.csv", sep = ";")
+JO <- read.csv("https://raw.githubusercontent.com/GabinMISARA/olympique-/main/Dossier%20Code/athlete_events.csv", sep = ";")
 
 ### Onglet 0 -
 # Données des pays avec leurs coordonnées géographiques
@@ -72,14 +72,14 @@ medal_count <- datajo %>%
             Medal_Bronze = sum(Medal_Bronze),
             total_Medals = sum(Medal_Gold, Medal_Silver, Medal_Bronze))
 
-# Partie 8: Fusionner avec le tableau de participation
+# Partie 8: Fusionner avec le tableau de participation bb
 tableau_final_hote <- merge(tableau_final_hote, medal_count, by = c("Year", "Season", "Team", "Host.country"), all.x = TRUE)
 
 # Partie 9: Arrondir les valeurs des pourcentages
 tableau_final_hote$Pourcentage_Participation <- round(tableau_final_hote$Pourcentage_Participation, 2)
 
 # Rajouter la condition pour les points violets et plus gros
-tableau_final_hote$marker_color <- ifelse(tableau_final_hote$Team == tableau_final_hote$Host.country, "violet", "transparent")
+tableau_final_hote$marker_color <- ifelse(tableau_final_hote$Team == tableau_final_hote$Host.country, "white", "transparent")
 tableau_final_hote$marker_size <- ifelse(tableau_final_hote$Team == tableau_final_hote$Host.country, 15, 10)
 
 # Renommer les colonnes
