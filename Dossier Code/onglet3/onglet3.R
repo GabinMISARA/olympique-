@@ -169,7 +169,7 @@ server <- function(input, output) {
     req(input$pays)
     
     # datajo <- read.csv("https://raw.githubusercontent.com/GabinMISARA/olympique-/ca403a2a076306fa328dfe257c889fd35e2fef4e/Dossier%20Code/athlete_events.csv", sep = ";")
-    datajo <- read.csv("/Users/adrienromand/Documents/OPEN/olympique-/Dossier Code/athlete_events.csv")
+    #datajo <- read.csv("/Users/adrienromand/Documents/OPEN/olympique-/Dossier Code/athlete_events.csv")
     # Liste des pays hôtes
     hote <- unique(datajo$Host.country)
     # Compter le nombre de médailles pour chaque équipe
@@ -204,7 +204,7 @@ server <- function(input, output) {
     p <- p %>% add_trace(
       y = ~medal_count2$Gold,
       name = 'Or',
-      marker = list(color = 'gold', line = list(color = ifelse(medal_count2$Year %in% annees_hote, 'black', 'white'), width = 1)),
+      marker = list(color = 'gold', line = list(color = ifelse(medal_count2$Year %in% annee_hote, 'black', 'white'), width = 1)),
       hoverinfo = 'none'
     )
     
@@ -212,7 +212,7 @@ server <- function(input, output) {
     p <- p %>% add_trace(
       y = ~medal_count2$Silver,
       name = 'Argent',
-      marker = list(color = 'silver', line = list(color = ifelse(medal_count2$Year %in% annees_hote, 'black', 'white'), width = 1)),
+      marker = list(color = 'silver', line = list(color = ifelse(medal_count2$Year %in% annee_hote, 'black', 'white'), width = 1)),
       hoverinfo = 'none'
     )
     
@@ -220,7 +220,7 @@ server <- function(input, output) {
     p <- p %>% add_trace(
       y = ~medal_count2$Bronze,
       name = 'Bronze',
-      marker = list(color = 'peru', line = list(color = ifelse(medal_count2$Year %in% annees_hote, 'black', 'white'), width = 1)),
+      marker = list(color = 'peru', line = list(color = ifelse(medal_count2$Year %in% annee_hote, 'black', 'white'), width = 1)),
       hoverinfo = 'none'
     )
     
