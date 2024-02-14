@@ -125,15 +125,17 @@ function(input, output, session) {
     })
     
     # Créer le graphique global
-    output$graphique_global <- renderPlot({
-      ggplot(data_filtered(), aes(x = Year, fill = Medal)) +
-        geom_bar(stat = "count") +
-        labs(title = "Résultats aux JO",
-             x = "Année",
-             y = "Nombre de médailles",
-             fill = "Médaille") +
-        scale_fill_manual(values = c("Gold" = "gold", "Silver" = "grey", "Bronze" = "darkorange")) +
-        theme_minimal()
+    output$graphique_global <- renderPlotly({
+      plot_hist <- plot_ly(
+        data_filtered(), x = ~Year, color = ~Medal, type = "histogram", 
+        colors = c("Gold" = "gold","Silver" = "grey","Bronze" = "darkgoldenrod")) %>%
+        layout(title = "Résultats aux JO",
+               xaxis = list(title = "Année"),
+               yaxis = list(title = "Nombre de médailles"),
+               barmode = "stack",
+               showlegend = TRUE,
+               legend = list(title = "Médaille"))
+      return(plot_hist)
     })
     
 ### Onglet 2 -
