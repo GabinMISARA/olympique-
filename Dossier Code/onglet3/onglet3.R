@@ -1,11 +1,10 @@
 # Chargement des packages nécessaires
-library(shiny)
-library(plotly)
-library(dplyr)
-library(tidyr)
+library(shiny); library(plotly); library(dplyr); library(tidyr)
 
 # Chargement des données depuis le fichier CSV en ligne
-datajo <- read.csv("athlete_events.csv", sep = ";")
+JO <- read.csv("https://raw.githubusercontent.com/GabinMISARA/olympique-/ca403a2a076306fa328dfe257c889fd35e2fef4e/Dossier%20Code/athlete_events.csv", sep = ";")
+# datajo <- read.csv("athlete_events.csv", sep = ";")
+datajo <- JO
 datajo$Medal[is.na(datajo$Medal)] <- 0
 
 # Partie 1: Liste des pays hôtes
@@ -14,17 +13,22 @@ hosts <- unique(datajo$Host.country)
 # Partie 2: Calcul du nombre total d'athlètes par année, saison et pays hôte
 athletes_count_total <- aggregate(cbind(Nb_athletes_Total = seq_along(Year)) ~ Year + Season + Host.country, data = datajo, length)
 
+
 # Partie 3: Filtrer les données pour inclure uniquement les pays hôtes
 datajo_hote <- datajo[datajo$Team %in% hosts, ]
+
 
 # Partie 4: Calcul du nombre d'athlètes par année, saison, pays hôte
 athletes_count_host <- aggregate(cbind(Nb_athletes_Host = seq_along(Year)) ~ Year + Season + Team + Host.country, data = datajo_hote, length)
 
+
 # Partie 5: Fusion des comptes d'athlètes total et par pays hôte
 tableau_final_hote <- merge(athletes_count_total, athletes_count_host, by = c("Year", "Season", "Host.country"), all.x = TRUE)
 
+
 # Partie 6: Calcul du pourcentage de participation pour chaque pays hôte
 tableau_final_hote$Pourcentage_Participation <- (tableau_final_hote$Nb_athletes_Host / tableau_final_hote$Nb_athletes_Total) * 100
+
 
 # Partie 7: Compter le nombre de médailles pour chaque équipe hôte
 datajo <- datajo %>%
