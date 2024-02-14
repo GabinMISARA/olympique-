@@ -182,12 +182,11 @@ server <- function(input, output) {
     
     # Filtrer les données pour ne conserver que les lignes où le nom de l'équipe correspond au pays sélectionné
     datajo_hote <- datajo2[datajo2$Team == input$pays, ]
-    # Remplacer les NA par 0
-    datajo_hote$Medal[is.na(datajo_hote$Medal)] <- 0
     
     # Compter le nombre total de médailles remportées par année
-    medal_count2 <- aggregate(Medal ~ Year, data = datajo_hote, FUN = function(x) length(na.omit(x)))
-    # Création de l'histogramme avec Plotly
+    medal_count2 <- aggregate(Medal ~ Year + Team, data = datajo_hote, FUN = function(x) sum(!is.na(x)))
+    
+    
     p <- plot_ly(
       x = ~medal_count2$Year,
       type = 'bar',
@@ -234,8 +233,10 @@ server <- function(input, output) {
   })
   
   p
+  
 }
 
+shinyApp(ui = ui, server = server)
 ##### Pistes amélioration 
 #### Afficher lieu + nb diff médailles quand l'utilisateur passe sur les barres avec la souris
 #### Thème graphique
@@ -244,6 +245,7 @@ server <- function(input, output) {
 #### Remplacer le nom des pays en français dans le titre du ggplot
 #### Création de l'histogramme avec Plotly
 #### À la place des couleurs, remplir les barres en 3 parties représentant le % de chaque médaille
+# Création de l'histogramme avec Plotly
 
 
 
