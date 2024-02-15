@@ -198,17 +198,21 @@ function(input, output, session) {
     
     plot2 <- plot_ly(data = tableau_final_hote2, x = ~Year) %>%
       add_trace(y = ~Medal_Gold, name = "Or", type = "scatter", mode = "markers",
-                text = ~paste("Médailles d'Or :", Medal_Gold, "<br>Année :", Year, "<br> Pays :", Host.country),
+                text = ~paste("Médailles d'Or :", Medal_Gold, "<br>Année :", Year, "<br> Pays hôte :", Host.country, 
+                              ifelse(tableau_final_hote2$marker_size == 15, "<br>Le pays sélectioné est le pays hôte", "")),
                 hoverinfo = "text", marker = list(color = "gold", size = tableau_final_hote2$marker_size, line = list(color = tableau_final_hote2$marker_color))) %>%
       add_trace(y = ~Medal_Silver, name = "Argent", type = "scatter", mode = "markers",
-                text = ~paste("Médailles d'Argent :", Medal_Silver, "<br>Année :", Year, "<br> Pays :", Host.country),
+                text = ~paste("Médailles d'Argent :", Medal_Silver, "<br>Année :", Year, "<br> Pays hôte :", Host.country, 
+                              ifelse(tableau_final_hote2$marker_size == 15, "<br>Le pays sélectioné est le pays hôte", "")),
                 hoverinfo = "text", marker = list(color = "silver", size = tableau_final_hote2$marker_size, line = list(color = tableau_final_hote2$marker_color))) %>%
       add_trace(y = ~Medal_Bronze, name = "Bronze", type = "scatter", mode = "markers",
-                text = ~paste("Médailles de Bronze :", Medal_Bronze, "<br>Année :", Year, "<br> Pays :", Host.country),
+                text = ~paste("Médailles de Bronze :", Medal_Bronze, "<br>Année :", Year, "<br> Pays :", Host.country, 
+                              ifelse(tableau_final_hote2$marker_size == 15, "<br> Le pays sélectioné est le pays hôte", "")),
                 hoverinfo = "text", marker = list(color = "brown", size = tableau_final_hote2$marker_size, line = list(color = tableau_final_hote2$marker_color))) %>%
       add_trace(y = ~Pourcentage_Participation, name = "Pourcentage Participation", type = "scatter", mode = "markers",
                 yaxis = "y2",
-                text = ~paste("Pourcentage de Participation :", Pourcentage_Participation, "%<br>Année :", Year, "<br> Pays :", Host.country),
+                text = ~paste("Pourcentage de Participation :", Pourcentage_Participation, "%<br>Année :", Year, "<br> Pays hôte :", Host.country, 
+                              ifelse(tableau_final_hote2$marker_size == 15, "<br> Le pays sélectioné est le pays hôte", "")),
                 hoverinfo = "text", marker = list(color = "blue", size = tableau_final_hote2$marker_size)) %>%
       layout(title = paste("Performances aux Jeux Olympiques", input$pays, ":"),
              xaxis = list(title = "Années"),
