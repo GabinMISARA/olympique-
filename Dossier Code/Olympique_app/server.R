@@ -1,9 +1,11 @@
-library(shiny); library(leaflet); library(ggplot2); library(dplyr); library(plotly); library(tidyr); library(gtranslate)
+library(shiny); library(leaflet); library(ggplot2); library(dplyr); library(plotly); library(tidyr); library(gtranslate); library(data.table)
 
 ###Initialisation
 
 ### DATA global
-JO <- read.csv("https://raw.githubusercontent.com/GabinMISARA/olympique-/main/Dossier%20Code/athlete_events.csv", sep = ";")
+datajo <- fread("https://raw.githubusercontent.com/GabinMISARA/olympique-/main/Dossier%20Code/athlete_events.csv", 
+                select = c("ID", "Sex", "Age", "Team", "NOC", "Year", "Season", "City", "Sport", "Medal", "Host.country"), 
+                sep = ";")
 
 ### Onglet 0 -
 # Données des pays avec leurs coordonnées géographiques
@@ -21,19 +23,14 @@ pays <- data.frame(
 )
 
 
-### Onglet 1 -
-# Spécifier l'URL du fichier CSV sur Kaggle
-first_year <- min(JO$Year, na.rm = TRUE)
+### Onglet 1 & 2
+JO_filt <- datajo[complete.cases(datajo$Medal), ]
+
+first_year <- min(JO_filt$Year, na.rm = TRUE)
 # Liste des pays uniques
-unique_countries <- unique(JO$NOC)
-
-
-### Onglet 2 -
-JO_filt <- JO[complete.cases(JO$Medal), ]
-
+unique_countries <- unique(JO_filt$NOC)
 
 ### Onglet 3 -
-datajo <- JO
 datajo$Medal[is.na(datajo$Medal)] <- 0
 
 # Partie 1: Liste des pays hôtes
@@ -91,7 +88,7 @@ names(tableau_final_hote) <- c("Year", "Season", "Team", "Host.country", "Nb_ath
 # Define server logic required to draw a histogram
 function(input, output, session) {
   
-###Onglet 0 -
+  ###Onglet 0 -
   output$map <- renderLeaflet({
     leaflet() %>%
       addTiles() %>%
@@ -107,38 +104,38 @@ function(input, output, session) {
                        "Médailles d'or: ", medaille_or)
       )
   })
-### Onglet 1 -
-    data_filtered <- reactive({
-      filtered_data <- JO
-      if (input$sport_select != "Tous") {
-        filtered_data <- filter(filtered_data, Sport == input$sport_select)
-      }
-      if (input$country_select != "Tous") {
-        filtered_data <- filter(filtered_data, NOC == input$country_select)
-      }
-      if (!is.null(input$annee_slider)) {
-        filtered_data <- filter(filtered_data, Year >= input$annee_slider[1] & Year <= input$annee_slider[2])
-      }
-      # Exclure les lignes où Medal est NA
-      filtered_data <- filter(filtered_data, !is.na(Medal))
-      filtered_data
-    })
-    
-    # Créer le graphique global
-    output$graphique_global <- renderPlotly({
-      plot_hist <- plot_ly(
-        data_filtered(), x = ~Year, color = ~Medal, type = "histogram", 
-        colors = c("Gold" = "gold","Silver" = "grey","Bronze" = "darkgoldenrod")) %>%
-        layout(title = "Résultats aux JO",
-               xaxis = list(title = "Année"),
-               yaxis = list(title = "Nombre de médailles"),
-               barmode = "stack",
-               showlegend = TRUE,
-               legend = list(title = "Médaille"))
-      return(plot_hist)
-    })
-    
-### Onglet 2 -
+  ### Onglet 1 -
+  data_filtered <- reactive({
+    filtered_data <- JO_filt
+    if (input$sport_select != "Tous") {
+      filtered_data <- filter(filtered_data, Sport == input$sport_select)
+    }
+    if (input$country_select != "Tous") {
+      filtered_data <- filter(filtered_data, NOC == input$country_select)
+    }
+    if (!is.null(input$annee_slider)) {
+      filtered_data <- filter(filtered_data, Year >= input$annee_slider[1] & Year <= input$annee_slider[2])
+    }
+    # Exclure les lignes où Medal est NA
+    filtered_data <- filter(filtered_data, !is.na(Medal))
+    filtered_data
+  })
+  
+  # Créer le graphique global
+  output$graphique_global <- renderPlotly({
+    plot_hist <- plot_ly(
+      data_filtered(), x = ~Year, color = ~Medal, type = "histogram", 
+      colors = c("Gold" = "gold","Silver" = "grey","Bronze" = "darkgoldenrod")) %>%
+      layout(title = "Résultats aux JO",
+             xaxis = list(title = "Année"),
+             yaxis = list(title = "Nombre de médailles"),
+             barmode = "stack",
+             showlegend = TRUE,
+             legend = list(title = "Médaille"))
+    return(plot_hist)
+  })
+  
+  ### Onglet 2 -
   output$interactivePlot <- renderPlotly({
     # Filtre les données en fonction de la sélection faites par l'utilisateur
     JO_filt2 <- JO_filt %>%
@@ -190,7 +187,7 @@ function(input, output, session) {
     return(plot)
   })
   
-### Onglet 3 -
+  ### Onglet 3 -
   
   output$interactivePlot2 <- renderPlotly({
     tableau_final_hote2 <- tableau_final_hote %>%
