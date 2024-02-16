@@ -7,3 +7,7 @@ Arthur Deloche
 Théophile Debrucq
 Alex Demeure
 Tom Lecoq
+
+bibliographie : 
+Une seule source qui est le site ayant les datas des médailles obtenues au JO :
+Summer Olympic Medals 1896 - 2020, [en ligne]. Disponible à l’adresse : https://www.kaggle.com/datasets/ramontanoeiro/summer-olympic-medals-1986-2020 [consulté le 16 février 2024]. 
