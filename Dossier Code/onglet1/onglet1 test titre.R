@@ -3,6 +3,7 @@ library(shiny)
 library(ggplot2)
 library(dplyr)
 library(plotly)
+library(countrycode)
 
 # Spécifier l'URL du fichier CSV sur Kaggle
 JO <- read.csv("https://raw.githubusercontent.com/GabinMISARA/olympique-/ca403a2a076306fa328dfe257c889fd35e2fef4e/Dossier%20Code/athlete_events.csv", sep = ";")
@@ -10,8 +11,22 @@ JO <- read.csv("https://raw.githubusercontent.com/GabinMISARA/olympique-/ca403a2
 # Obtenir la première année où le jeu a été inclus aux JO
 first_year <- min(JO$Year, na.rm = TRUE)
 
+
+NPE <- function(NOC) {
+  translated_countries <- tryCatch(
+    {
+      translated_text <- countrycode(NOC, "iso2c", "country.name.french")
+      return(translated_text)
+    },
+    error = function(e) {NOC})
+  
+  return(translated_countries)
+}
+
+
 # Liste des pays uniques
 unique_countries <- unique(JO$NOC)
+
 
 # Définir l'interface utilisateur (UI)
 ui <- fluidPage(
@@ -118,3 +133,4 @@ server <- function(input, output) {
 
 # Créer l'application Shiny
 shinyApp(ui, server)
+
