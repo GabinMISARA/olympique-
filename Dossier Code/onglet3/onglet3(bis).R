@@ -147,8 +147,8 @@ ui <- fluidPage(
                  plotlyOutput("interactivePlot2")
                )
              )),
-
-
+    
+    
     
     # Onglet pour le deuxième graphique
     tabPanel("Graphique 2",
@@ -183,7 +183,7 @@ ui <- fluidPage(
              )
     ),
     tabPanel("A la maison on est champion ? ", "Contenu de l'onglet 4")
-)
+  )
 )
 
 
