@@ -99,7 +99,7 @@ fluidPage(
                    tags$br(),
                    selectInput(inputId = "pays2", label = "Sélectionnez un pays:", choices = unique(tableau_final_hote$Team), selected = "Australia"),
                    pickerInput(
-                     inputId = "pays",
+                     inputId = "pays3",
                      label = "Sélectionnez un pays (graphique 2) :",
                      choices = c("", hote_alphab),
                      selected = NULL,
