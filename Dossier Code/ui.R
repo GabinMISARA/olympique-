@@ -90,7 +90,7 @@ fluidPage(
     
     ### Onglet 3 - Suivi des performances
 
-      tabPanel("A la maison on est champion ?", 
+      tabPanel("À la maison on est champion ?", 
                sidebarLayout(
                  sidebarPanel(
                    tags$h4("Paramètres de filtrage"),
