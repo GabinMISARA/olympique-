@@ -1,11 +1,8 @@
 # Charger les bibliothèques nécessaires
 library(shiny)
-library(leaflet)
 library(ggplot2)
 library(dplyr)
 library(plotly)
-library(tidyr)
-library(gtranslate)
 
 # Spécifier l'URL du fichier CSV sur Kaggle
 JO <- read.csv("https://raw.githubusercontent.com/GabinMISARA/olympique-/ca403a2a076306fa328dfe257c889fd35e2fef4e/Dossier%20Code/athlete_events.csv", sep = ";")
@@ -79,26 +76,30 @@ server <- function(input, output) {
   
   # Créer le graphique global
   output$graphique_global <- renderPlotly({
-    plot_hist <- plot_ly(
-      data_filtered(), 
-      x = ~Year, 
-      color = ~Medal, 
-      type = "histogram", 
-      colors = c("Gold" = "gold", "Silver" = "grey", "Bronze" = "darkgoldenrod"),
-      text = ~paste(
-        "Année:", Year, "<br>",
-        "Médaille d'or:", sum(Medal == "Gold"), "<br>",
-        "Médaille d'argent:", sum(Medal == "Silver"), "<br>",
-        "Médaille de bronze:", sum(Medal == "Bronze")
-      )
-    ) %>%
+    plot_hist <- data_filtered() %>%
+      count(Year, Medal) %>%
+      plot_ly(
+        x = ~as.factor(Year), 
+        y = ~n, 
+        color = ~Medal, 
+        type = "bar",
+        colors = c("Gold" = "gold", "Silver" = "grey", "Bronze" = "darkgoldenrod"),
+        hoverinfo = "text",
+        text = ~paste(
+          "Année:", Year, "<br>",
+          "Médaille d'or:", sum(Medal == "Gold"), "<br>",
+          "Médaille d'argent:", sum(Medal == "Silver"), "<br>",
+          "Médaille de bronze:", sum(Medal == "Bronze")
+        )
+      ) %>%
       layout(
+        title = "Résultats aux JO",
         xaxis = list(title = "Année"),
         yaxis = list(title = "Nombre de médailles"),
         barmode = "stack",
         showlegend = TRUE,
         legend = list(title = "Médaille"),
-        margin = list(b = 100)  # Ajuster la marge inférieure ici
+        orientation = 'v'  # Barres verticales
       )
     
     return(plot_hist)
