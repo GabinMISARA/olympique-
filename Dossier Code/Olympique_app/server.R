@@ -26,6 +26,16 @@ pays <- data.frame(
 ### Onglet 1 & 2
 JO_filt <- datajo[complete.cases(datajo$Medal), ]
 
+# Fonction pour traduire le nom du pays (NOC) en français avec une gestion des erreurs
+NPE <- function(NOC) {
+  traduction <- tryCatch(
+    {
+      translate(paste("for the", unique(JO_filt$Team[JO_filt$NOC == NOC])), to = "fr")
+    },
+    error = function(e) {NOC})
+  return(traduction)
+} 
+
 first_year <- min(JO_filt$Year, na.rm = TRUE)
 # Liste des pays uniques
 unique_countries <- unique(JO_filt$NOC)
@@ -123,16 +133,43 @@ function(input, output, session) {
   
   # Créer le graphique global
   output$graphique_global <- renderPlotly({
-    plot_hist <- plot_ly(
-      data_filtered(), x = ~Year, color = ~Medal, type = "histogram", 
-      colors = c("Gold" = "gold","Silver" = "grey","Bronze" = "darkgoldenrod")) %>%
-      layout(title = "Résultats aux JO",
-             xaxis = list(title = "Année"),
-             yaxis = list(title = "Nombre de médailles"),
-             barmode = "stack",
-             showlegend = TRUE,
-             legend = list(title = "Médaille"))
+    plot_hist <- data_filtered() %>%
+      count(Year, Medal) %>%
+      plot_ly(
+        x = ~as.factor(Year), 
+        y = ~n, 
+        color = ~Medal, 
+        type = "bar",
+        colors = c("Gold" = "gold", "Silver" = "grey", "Bronze" = "darkgoldenrod"),
+        hoverinfo = "text",
+        text = ~paste(
+          "Année:", Year, "<br>",
+          "Médaille d'or:", sum(Medal == "Gold"), "<br>",
+          "Médaille d'argent:", sum(Medal == "Silver"), "<br>",
+          "Médaille de bronze:", sum(Medal == "Bronze")
+        )
+      ) %>%
+      layout(
+        title = "Résultats aux JO",
+        xaxis = list(title = "Année"),
+        yaxis = list(title = "Nombre de médailles"),
+        barmode = "stack",
+        showlegend = TRUE,
+        legend = list(title = "Médaille"),
+        orientation = 'v'  # Barres verticales
+      )
+    
     return(plot_hist)
+  })
+  
+  # Titre dynamique en fonction des sélections
+  output$plot_hist_title <- renderText({
+    title <- "Résultats aux JO"
+    if (input$sport_select != "Tous") title <- paste(title, "pour le sport", input$sport_select)
+    if (input$country_select != "Tous") title <- paste(title, NPE(input$country_select))
+    if (!is.null(input$annee_slider)) title <- paste(title, ", période", input$annee_slider[1], "-", input$annee_slider[2])
+    
+    return(title)
   })
   
   ### Onglet 2 -
@@ -157,16 +194,6 @@ function(input, output, session) {
     # Transformation des données en format long pour une utilisation facile dans Plotly
     cmedailles <- pivot_longer(cmed, cols = c(Bronze, Argent, Or),
                                names_to = "Medal", values_to = "Count")
-    
-    # Fonction pour traduire le nom du pays (NOC) en français avec une gestion des erreurs
-    NPE <- function(NOC) {
-      traduction <- tryCatch(
-        {
-          translate(paste("for the", unique(JO_filt$Team[JO_filt$NOC == NOC])), to = "fr")
-        },
-        error = function(e) {NOC})
-      return(traduction)
-    } 
     
     # Création du graphique interactif avec Plotly
     plot <- plot_ly(data = cmedailles, x = ~Year, y = ~Count, color = ~Medal,
