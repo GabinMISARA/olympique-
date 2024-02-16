@@ -21,7 +21,7 @@ function(input, output, session) {
   })
 ### Onglet 1 -
     data_filtered <- reactive({
-      filtered_data <- JO
+      filtered_data <- JO_filt
       if (input$sport_select != "Tous") {
         filtered_data <- filter(filtered_data, Sport == input$sport_select)
       }
@@ -38,18 +38,44 @@ function(input, output, session) {
     
     # Créer le graphique global
     output$graphique_global <- renderPlotly({
-      plot_barres <- plot_ly(
-        data_filtered(), x = ~Year, color = ~Medal, type = "histogram", 
-        colors = c("Gold" = "gold","Silver" = "grey","Bronze" = "darkgoldenrod")) %>%
-        layout(title = "Résultats aux JO",
-               xaxis = list(title = "Année"),
-               yaxis = list(title = "Nombre de médailles"),
-               barmode = "stack",
-               showlegend = TRUE,
-               legend = list(title = "Médaille"))
-      return(plot_barres)
+      plot_hist <- data_filtered() %>%
+        count(Year, Medal) %>%
+        plot_ly(
+          x = ~as.factor(Year), 
+          y = ~n, 
+          color = ~Medal, 
+          type = "bar",
+          colors = c("Gold" = "gold", "Silver" = "grey", "Bronze" = "darkgoldenrod"),
+          hoverinfo = "text",
+          text = ~paste(
+            "Année:", Year, "<br>",
+            "Médaille d'or:", sum(Medal == "Gold"), "<br>",
+            "Médaille d'argent:", sum(Medal == "Silver"), "<br>",
+            "Médaille de bronze:", sum(Medal == "Bronze")
+          )
+        ) %>%
+        layout(
+          title = "Résultats aux JO",
+          xaxis = list(title = "Année"),
+          yaxis = list(title = "Nombre de médailles"),
+          barmode = "stack",
+          showlegend = TRUE,
+          legend = list(title = "Médaille"),
+          orientation = 'v'  # Barres verticales
+        )
+      
+      return(plot_hist)
     })
     
+    # Titre dynamique en fonction des sélections
+    output$plot_hist_title <- renderText({
+      title <- "Résultats aux JO"
+      if (input$sport_select != "Tous") title <- paste(title, "pour le sport", input$sport_select)
+      if (input$country_select != "Tous") title <- paste(title, NPE(input$country_select))
+      if (!is.null(input$annee_slider)) title <- paste(title, "| période", input$annee_slider[1], "-", input$annee_slider[2])
+      
+      return(title)
+    })
 ### Onglet 2 -
   output$interactivePlot <- renderPlotly({
     # Filtre les données en fonction de la sélection faites par l'utilisateur
@@ -121,7 +147,7 @@ function(input, output, session) {
       add_trace(y = ~Medal_Bronze, name = "Bronze", type = "scatter", mode = "markers",
                 text = ~paste("Médailles de Bronze :", Medal_Bronze, "<br>Année :", Year, "<br> Pays :", Host.country, 
                               ifelse(tableau_final_hote2$marker_size == 15, "<br> Le pays sélectioné est le pays hôte", "")),
-                hoverinfo = "text", marker = list(color = "brown", size = tableau_final_hote2$marker_size, line = list(color = tableau_final_hote2$marker_color))) %>%
+                hoverinfo = "text", marker = list(color = "darkgoldenrod", size = tableau_final_hote2$marker_size, line = list(color = tableau_final_hote2$marker_color))) %>%
       add_trace(y = ~Pourcentage_Participation, name = "Pourcentage Participation", type = "scatter", mode = "markers",
                 yaxis = "y2",
                 text = ~paste("Pourcentage de Participation :", Pourcentage_Participation, "%<br>Année :", Year, "<br> Pays hôte :", Host.country, 
@@ -187,13 +213,13 @@ function(input, output, session) {
         add_trace(
           y = ~medal_count2$Medal_Silver,
           name = 'Argent',
-          marker = list(color = 'silver',
+          marker = list(color = 'grey',
                         line = list(color = ifelse(medal_count2$Year %in% datajo_Hote$Year[datajo_Hote$Host.country == input$pays3], 'purple','transparent'), width = 2)
           )) %>%
         add_trace(
           y = ~medal_count2$Medal_Bronze,
           name = 'Bronze',
-          marker = list(color = 'peru',
+          marker = list(color = 'darkgoldenrod',
                         line = list(color = ifelse(medal_count2$Year %in% datajo_Hote$Year[datajo_Hote$Host.country == input$pays3], 'purple','transparent'), width = 2)
           ))
       
