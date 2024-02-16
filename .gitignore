@@ -3,6 +3,6 @@
 .RData
 .Ruserdata
 .DS_Store
-shinyApp.Rproj
+*.Rproj
 shinyApp_cache/
 shinyApp.RData
