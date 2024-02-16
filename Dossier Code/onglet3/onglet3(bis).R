@@ -8,11 +8,10 @@ library(ggplot2)
 library(shinyWidgets)
 
 # Chargement des données depuis le fichier CSV en ligne
-datajo <- read.csv ("https://raw.githubusercontent.com/GabinMISARA/olympique-/main/Dossier%20Code/athlete_events.csv", sep = ";")
+#datajo <- read.csv ("https://raw.githubusercontent.com/GabinMISARA/olympique-/main/Dossier%20Code/athlete_events.csv", sep = ";")
 
 ###### Définition des variables Graphique 1 #####
-# Chargement des données depuis le fichier CSV en ligne
-datajo <- read.csv("athlete_events.csv", sep = ";")
+datajo <- JO
 datajo$Medal[is.na(datajo$Medal)] <- 0
 
 # Partie 1: Liste des pays hôtes
@@ -21,17 +20,22 @@ hosts <- unique(datajo$Host.country)
 # Partie 2: Calcul du nombre total d'athlètes par année, saison et pays hôte
 athletes_count_total <- aggregate(cbind(Nb_athletes_Total = seq_along(Year)) ~ Year + Season + Host.country, data = datajo, length)
 
+
 # Partie 3: Filtrer les données pour inclure uniquement les pays hôtes
 datajo_hote <- datajo[datajo$Team %in% hosts, ]
+
 
 # Partie 4: Calcul du nombre d'athlètes par année, saison, pays hôte
 athletes_count_host <- aggregate(cbind(Nb_athletes_Host = seq_along(Year)) ~ Year + Season + Team + Host.country, data = datajo_hote, length)
 
+
 # Partie 5: Fusion des comptes d'athlètes total et par pays hôte
 tableau_final_hote <- merge(athletes_count_total, athletes_count_host, by = c("Year", "Season", "Host.country"), all.x = TRUE)
 
+
 # Partie 6: Calcul du pourcentage de participation pour chaque pays hôte
 tableau_final_hote$Pourcentage_Participation <- (tableau_final_hote$Nb_athletes_Host / tableau_final_hote$Nb_athletes_Total) * 100
+
 
 # Partie 7: Compter le nombre de médailles pour chaque équipe hôte
 datajo <- datajo %>%
@@ -46,18 +50,20 @@ medal_count <- datajo %>%
             Medal_Bronze = sum(Medal_Bronze),
             total_Medals = sum(Medal_Gold, Medal_Silver, Medal_Bronze))
 
-# Partie 8: Fusionner avec le tableau de participation
+# Partie 8: Fusionner avec le tableau de participation bb
 tableau_final_hote <- merge(tableau_final_hote, medal_count, by = c("Year", "Season", "Team", "Host.country"), all.x = TRUE)
 
 # Partie 9: Arrondir les valeurs des pourcentages
 tableau_final_hote$Pourcentage_Participation <- round(tableau_final_hote$Pourcentage_Participation, 2)
 
 # Rajouter la condition pour les points violets et plus gros
-tableau_final_hote$marker_color <- ifelse(tableau_final_hote$Team == tableau_final_hote$Host.country, "violet", "transparent")
+tableau_final_hote$marker_color <- ifelse(tableau_final_hote$Team == tableau_final_hote$Host.country, "white", "transparent")
 tableau_final_hote$marker_size <- ifelse(tableau_final_hote$Team == tableau_final_hote$Host.country, 15, 10)
 
 # Renommer les colonnes
 names(tableau_final_hote) <- c("Year", "Season", "Team", "Host.country", "Nb_athletes_Total", "Nb_athletes_Host", "Pourcentage_Participation", "Medal_Gold", "Medal_Silver", "Medal_Bronze", "total_Medals", "marker_color", "marker_size")
+
+
 
 ###### Définition des variables Graphique 2 #####
 hote <- unique(datajo$Host.country)
@@ -127,21 +133,22 @@ ui <- fluidPage(
   tabsetPanel(
     
     # Onglet pour le premier graphique
-    tabPanel("Graphique 1",
+    tabPanel("Suivi des performances",   titlePanel(" "),
              sidebarLayout(
                sidebarPanel(
-                 checkboxGroupInput(inputId = "Saison", label = "Sélectionnez la saison:", 
-                                    choices = c("Été" = "Summer", "Hiver" = "Winter"), 
-                                    selected = c("Summer", "Winter"), inline = TRUE),
+                 tags$h4("Paramètres de filtrage"),
+                 tags$br(),   # Saut de ligne
+                 checkboxGroupInput(inputId = "Saison2", label = "Sélectionnez la saison:", choices = c("Été" = "Summer", "Hiver" = "Winter"), selected = c("Summer", "Winter"), inline = TRUE),
                  tags$br(),
-                 selectInput(inputId = "pays", label = "Sélectionnez un pays:", 
-                             choices = unique(tableau_final_hote$Team), selected = "France")
+                 selectInput(inputId = "pays2", label = "Sélectionnez un pays:", choices = unique(tableau_final_hote$Team), selected = "Australia"),
+                 width = 3
                ),
                mainPanel(
-                 plotlyOutput("interactivePlot")
+                 plotlyOutput("interactivePlot2")
                )
-             )
-    ),
+             )),
+
+
     
     # Onglet pour le deuxième graphique
     tabPanel("Graphique 2",
@@ -164,8 +171,7 @@ ui <- fluidPage(
                  textOutput("pays_output"),
                  plotlyOutput("hist")
                )
-             )
-    ),
+             )),
     
     # Onglet pour le troisième graphique
     tabPanel("Graphique 3",
@@ -175,31 +181,36 @@ ui <- fluidPage(
                  textOutput("podium_ranking")
                )
              )
-    )
-  )
+    ),
+    tabPanel("A la maison on est champion ? ", "Contenu de l'onglet 4")
+)
 )
 
 
 ###### Serveur #####
 server <- function(input, output) {
   # Serveur Graphique 1
-  output$interactivePlot <- renderPlotly({
+  output$interactivePlot2 <- renderPlotly({
     tableau_final_hote2 <- tableau_final_hote %>%
-      filter(Season %in% input$Saison & Team == input$pays)
+      filter(Season %in% input$Saison2 & Team == input$pays2)
     
-    plot <- plot_ly(data = tableau_final_hote2, x = ~Year) %>%
+    plot2 <- plot_ly(data = tableau_final_hote2, x = ~Year) %>%
       add_trace(y = ~Medal_Gold, name = "Or", type = "scatter", mode = "markers",
-                text = ~paste("Médailles d'Or :", Medal_Gold, "<br>Année :", Year, "<br> Pays :", Host.country),
+                text = ~paste("Médailles d'Or :", Medal_Gold, "<br>Année :", Year, "<br> Pays hôte :", Host.country, 
+                              ifelse(tableau_final_hote2$marker_size == 15, "<br>Le pays sélectioné est le pays hôte", "")),
                 hoverinfo = "text", marker = list(color = "gold", size = tableau_final_hote2$marker_size, line = list(color = tableau_final_hote2$marker_color))) %>%
       add_trace(y = ~Medal_Silver, name = "Argent", type = "scatter", mode = "markers",
-                text = ~paste("Médailles d'Argent :", Medal_Silver, "<br>Année :", Year, "<br> Pays :", Host.country),
+                text = ~paste("Médailles d'Argent :", Medal_Silver, "<br>Année :", Year, "<br> Pays hôte :", Host.country, 
+                              ifelse(tableau_final_hote2$marker_size == 15, "<br>Le pays sélectioné est le pays hôte", "")),
                 hoverinfo = "text", marker = list(color = "silver", size = tableau_final_hote2$marker_size, line = list(color = tableau_final_hote2$marker_color))) %>%
       add_trace(y = ~Medal_Bronze, name = "Bronze", type = "scatter", mode = "markers",
-                text = ~paste("Médailles de Bronze :", Medal_Bronze, "<br>Année :", Year, "<br> Pays :", Host.country),
+                text = ~paste("Médailles de Bronze :", Medal_Bronze, "<br>Année :", Year, "<br> Pays :", Host.country, 
+                              ifelse(tableau_final_hote2$marker_size == 15, "<br> Le pays sélectioné est le pays hôte", "")),
                 hoverinfo = "text", marker = list(color = "brown", size = tableau_final_hote2$marker_size, line = list(color = tableau_final_hote2$marker_color))) %>%
       add_trace(y = ~Pourcentage_Participation, name = "Pourcentage Participation", type = "scatter", mode = "markers",
                 yaxis = "y2",
-                text = ~paste("Pourcentage de Participation :", Pourcentage_Participation, "%<br>Année :", Year, "<br> Pays :", Host.country),
+                text = ~paste("Pourcentage de Participation :", Pourcentage_Participation, "%<br>Année :", Year, "<br> Pays hôte :", Host.country, 
+                              ifelse(tableau_final_hote2$marker_size == 15, "<br> Le pays sélectioné est le pays hôte", "")),
                 hoverinfo = "text", marker = list(color = "blue", size = tableau_final_hote2$marker_size)) %>%
       layout(title = paste("Performances aux Jeux Olympiques", input$pays, ":"),
              xaxis = list(title = "Années"),
@@ -207,7 +218,7 @@ server <- function(input, output) {
              yaxis2 = list(title = "Pourcentage Participation", side = "right", overlaying = "y", showgrid = FALSE),
              showlegend = TRUE)
     
-    plot
+    return(plot2)
   })
   
   # Serveur Graphique 2
