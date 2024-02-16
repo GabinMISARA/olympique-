@@ -1,11 +1,12 @@
-library(shiny); library(leaflet); library(ggplot2); library(dplyr); library(plotly); library(tidyr); library(gtranslate)
+library(shiny); library(leaflet); library(ggplot2); library(dplyr); library(plotly); library(tidyr); library(gtranslate); library(data.table)
 
 ###Initialisation
 
 ### DATA global
-JO <- read.csv("https://raw.githubusercontent.com/GabinMISARA/olympique-/main/Dossier%20Code/athlete_events.csv", sep = ";")
+datajo <- fread("https://raw.githubusercontent.com/GabinMISARA/olympique-/main/Dossier%20Code/athlete_events.csv", 
+                select = c("ID", "Sex", "Age", "Team", "NOC", "Year", "Season", "City", "Sport", "Medal", "Host.country"), 
+                sep = ";")
 
-### Onglet 0 -
 # Données des pays avec leurs coordonnées géographiques
 pays <- data.frame(
   nom = c("Norvège", "Suède", "Finlande", "Grande Bretagne", "Pays Bas", "France", "Espagne", "Italie", 
@@ -21,19 +22,14 @@ pays <- data.frame(
 )
 
 
-### Onglet 1 -
-# Spécifier l'URL du fichier CSV sur Kaggle
-first_year <- min(JO$Year, na.rm = TRUE)
+### Onglet 1 & 2
+JO_filt <- datajo[complete.cases(datajo$Medal), ]
+
+first_year <- min(JO_filt$Year, na.rm = TRUE)
 # Liste des pays uniques
-unique_countries <- unique(JO$NOC)
-
-
-### Onglet 2 -
-JO_filt <- JO[complete.cases(JO$Medal), ]
-
+unique_countries <- unique(JO_filt$NOC)
 
 ### Onglet 3 -
-datajo <- JO
 datajo$Medal[is.na(datajo$Medal)] <- 0
 
 # Partie 1: Liste des pays hôtes
@@ -98,19 +94,19 @@ fluidPage(
   }',
                     "
       .nav-tabs > li > a {
-        color: #fff; /* Couleur du texte des onglets */
-        background-color: #007bff !important; /* Couleur de fond des onglets (bleu) */
-        border-color: #007bff; /* Couleur de la bordure des onglets */
+        color: #3b3b3b; /* Couleur du texte des onglets */
+        background-color: #CFB095 !important; /* Couleur de fond des onglets (marron clair) */
+        border-color: #3b3b3b; /* Couleur de la bordure des onglets */
       }
       .nav-tabs > li.active > a,
       .nav-tabs > li.active > a:hover,
       .nav-tabs > li.active > a:focus {
         background-color: #fff !important; /* Couleur de fond des onglets actifs (blanc) */
-        border-color: #0056b3; /* Couleur de la bordure des onglets actifs */
+        border-color: #3b3b3b; /* Couleur de la bordure des onglets actifs */
       }
     "                 
-                    ))
-  
+    ))
+    
   ),
   titlePanel("Résultats aux Jeux Olympiques sur 120 ans"),
   tabsetPanel(
@@ -128,10 +124,10 @@ fluidPage(
                  tags$br(),   # Saut de ligne
                  sliderInput("annee_slider", "Sélectionnez une année :", 
                              min = first_year, 
-                             max = max(JO$Year, na.rm = TRUE),
-                             value = c(first_year, max(JO$Year, na.rm = TRUE))),
+                             max = max(JO_filt$Year, na.rm = TRUE),
+                             value = c(first_year, max(JO_filt$Year, na.rm = TRUE))),
                  selectInput("sport_select", "Sélectionnez un sport :", 
-                             choices = c("Tous", unique(JO$Sport))),
+                             choices = c("Tous", unique(JO_filt$Sport))),
                  selectInput("country_select", "Sélectionnez un pays :",
                              choices = c("Tous", unique_countries)),
                  width = 3
