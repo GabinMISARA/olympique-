@@ -9,5 +9,8 @@ Alex Demeure
 Tom Lecoq
 
 bibliographie : 
-Une seule source qui est le site ayant les datas des médailles obtenues au JO :
+Il s'agit des sites sources des datasets que nous avons utilisés :
 Summer Olympic Medals 1896 - 2020, [en ligne]. Disponible à l’adresse : https://www.kaggle.com/datasets/ramontanoeiro/summer-olympic-medals-1986-2020 [consulté le 16 février 2024]. 
+
+CHOUDHARY, NITIN, 2023. Olympics History-Basic EDA And Medal Prediction [en ligne]. [athlete_events.csv]. 2023. Disponible à l’adresse : https://www.kaggle.com/code/nitinchoudhary012/olympics-history-basic-eda-and-medal-prediction/notebook
+
