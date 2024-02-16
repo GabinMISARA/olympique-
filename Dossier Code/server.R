@@ -200,7 +200,7 @@ function(input, output, session) {
                      "<br>Médailles d'or: ", medal_count2$Medal_Gold,
                      "<br>Médailles d'argent: ", medal_count2$Medal_Silver,
                      "<br>Médailles de bronze: ", medal_count2$Medal_Bronze,
-                     "<br>Pays hôte: ", input$pays3,
+                     "<br>Pays hôte: ", medal_count2$Host.country,
                      "<br>Ville: ", medal_count2$City)
       )
       
