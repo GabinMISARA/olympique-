@@ -25,6 +25,17 @@ pays <- data.frame(
 ### Onglet 1 & 2
 JO_filt <- datajo[complete.cases(datajo$Medal), ]
 
+
+# Fonction pour traduire le nom du pays (NOC) en français avec une gestion des erreurs
+NPE <- function(NOC) {
+  traduction <- tryCatch(
+    {
+      translate(paste("for the", unique(JO_filt$Team[JO_filt$NOC == NOC])), to = "fr")
+    },
+    error = function(e) {NOC})
+  return(traduction)
+} 
+
 first_year <- min(JO_filt$Year, na.rm = TRUE)
 # Liste des pays uniques
 unique_countries <- unique(JO_filt$NOC)
@@ -116,7 +127,7 @@ fluidPage(
     ),
     
     ### Onglet 1 - Histogramme
-    tabPanel("Histogramme", titlePanel(" "),
+    tabPanel("Répartition des médailles", titlePanel(" "),
              sidebarLayout(
                sidebarPanel(
                  tags$style(".well {background-color:#CFB095;}"), #change la couleur du fond
@@ -133,7 +144,8 @@ fluidPage(
                  width = 3
                ),
                mainPanel(
-                 plotlyOutput("graphique_global")
+                 plotlyOutput("graphique_global"),
+                 textOutput("plot_hist_title")
                )
              )
     ),
@@ -170,7 +182,7 @@ fluidPage(
     ),
     
     ### Onglet 3 - Suivi des performances
-    tabPanel("Suivi des performances",   titlePanel(" "),
+    tabPanel("À la maison on est champion ? ",   titlePanel(" "),
              sidebarLayout(
                sidebarPanel(
                  tags$h4("Paramètres de filtrage"),
@@ -184,6 +196,5 @@ fluidPage(
                  plotlyOutput("interactivePlot2")
                )
              )),
-    tabPanel("A la maison on est champion ? ", "Contenu de l'onglet 4")
   )
 )
