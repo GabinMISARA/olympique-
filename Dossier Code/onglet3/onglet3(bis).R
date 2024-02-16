@@ -1,5 +1,6 @@
 
 # Chargement des packages nécessaires
+
 library(shiny)
 library(plotly)
 library(dplyr)
@@ -8,10 +9,10 @@ library(ggplot2)
 library(shinyWidgets)
 
 # Chargement des données depuis le fichier CSV en ligne
-#datajo <- read.csv ("https://raw.githubusercontent.com/GabinMISARA/olympique-/main/Dossier%20Code/athlete_events.csv", sep = ";")
+datajo <- read.csv ("https://raw.githubusercontent.com/GabinMISARA/olympique-/main/Dossier%20Code/athlete_events.csv", sep = ";")
 
 ###### Définition des variables Graphique 1 #####
-datajo <- JO
+#datajo <- JO
 datajo$Medal[is.na(datajo$Medal)] <- 0
 
 # Partie 1: Liste des pays hôtes
@@ -125,38 +126,24 @@ medal_count_top <- datajo3 %>%
   filter(Team %in% top_countries)
 
 
-###### UI #####
+##### UI #####
 ui <- fluidPage(
   titlePanel("Performances aux Jeux Olympiques"),
   
   # Onglets pour chaque graphique
   tabsetPanel(
-    
     # Onglet pour le premier graphique
-    tabPanel("Suivi des performances",   titlePanel(" "),
+    tabPanel("A la maison on est champion ?", 
              sidebarLayout(
                sidebarPanel(
                  tags$h4("Paramètres de filtrage"),
                  tags$br(),   # Saut de ligne
-                 checkboxGroupInput(inputId = "Saison2", label = "Sélectionnez la saison:", choices = c("Été" = "Summer", "Hiver" = "Winter"), selected = c("Summer", "Winter"), inline = TRUE),
+                 checkboxGroupInput(inputId = "Saison2", label = "Sélectionnez la saison (graphique 1):", choices = c("Été" = "Summer", "Hiver" = "Winter"), selected = c("Summer", "Winter"), inline = TRUE),
                  tags$br(),
                  selectInput(inputId = "pays2", label = "Sélectionnez un pays:", choices = unique(tableau_final_hote$Team), selected = "Australia"),
-                 width = 3
-               ),
-               mainPanel(
-                 plotlyOutput("interactivePlot2")
-               )
-             )),
-    
-    
-    
-    # Onglet pour le deuxième graphique
-    tabPanel("Graphique 2",
-             sidebarLayout(
-               sidebarPanel(
                  pickerInput(
                    inputId = "pays",
-                   label = "Sélectionnez un pays :",
+                   label = "Sélectionnez un pays (graphique 2) :",
                    choices = c("", hote_alphab),
                    selected = NULL,
                    options = list(
@@ -165,24 +152,18 @@ ui <- fluidPage(
                      liveSearch = TRUE,
                      noneSelectedText = NULL
                    )
-                 )
+                 ),
+                 width = 3
                ),
                mainPanel(
-                 textOutput("pays_output"),
-                 plotlyOutput("hist")
-               )
-             )),
-    
-    # Onglet pour le troisième graphique
-    tabPanel("Graphique 3",
-             sidebarLayout(
-               mainPanel(
-                 plotlyOutput("medal_trend_plot"),
-                 textOutput("podium_ranking")
+                 fluidRow(
+                   column(width = 12, style = "padding: 20px;", div(plotlyOutput("interactivePlot2"), style = "border: 2px solid #ccc; border-radius: 5px; margin-bottom: 20px;")),
+                   column(width = 12, style = "padding: 20px;", div(plotlyOutput("hist"), style = "border: 2px solid #ccc; border-radius: 5px; margin-bottom: 20px;"), div(textOutput("pays_output"))),
+                   column(width = 12, style = "padding: 20px;", div(plotlyOutput("medal_trend_plot"), style = "border: 2px solid #ccc; border-radius: 5px; margin-bottom: 20px;"))
+                 ),
                )
              )
-    ),
-    tabPanel("A la maison on est champion ? ", "Contenu de l'onglet 4")
+    )
   )
 )
 
@@ -285,7 +266,7 @@ server <- function(input, output) {
       p <- p %>%
         layout(
           title = paste("Nombre total de médailles pour", input$pays),
-          xaxis = list(title = "Année JO (année hôte en violet)"),
+          xaxis = list(title = "Année (année hôte en violet)"),
           yaxis = list(title = "Nombre de médailles"),
           barmode = 'stack',  # Pour empiler les barres
           hoverlabel = list(bgcolor = 'rgb(235, 235, 235)', font = list(color = 'rgb(145, 145, 145)'))
