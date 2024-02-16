@@ -7,11 +7,11 @@ Il s’agit de la page d'accueil. Elle intégre une présentation manuscrite de 
 
 Plus le marqueur est gros et plus le pays a remporté de médailles d'or. Ceci permet une visualisation globale des principaux vainqueurs. Tous les pays ayant remporté une médaille n'ont pas été mis pour une meilleure vision de la carte. Il y a simplement une trentaine de pays parmi les plus titrés
 
-### Onglet 1 : Histogramme
-git 
+### Onglet 1 : Graphique du nombre de médailles par sport et par année
+
 Ce graphique représente le nombre de médailles d’or, d’argent et de bronze en fonction des années. 
 
-La partie utilisateur permet d’affiner les informations selon 3 paramètres :
+La partie utilisateur permet de choisir les informations selon 3 paramètres :
 Paramètre de l’année : Utiliser un slider (barre de défilement) pour permettre à l'utilisateur de sélectionner une plage d'années spécifiques.
 Paramètre du sport : Un menu déroulant pour choisir un sport parmi ceux disponibles dans les données
 Paramètre du pays :  Un menu déroulant pour choisir un pays parmi ceux disponibles dans les données.
@@ -38,5 +38,9 @@ Question: Le lieu de déroulement des jeux a-t-il une influence sur les résulta
 
 Nous souhaitons définir s’il est statistiquement significatif d’être le pays hôte des Jeux Olympiques pour remporter des médailles.
 
-Histogramme où l’utilisateur peut sélectionner un pays et observer les performances du pays choisi sur l’ensemble des éditions où il était participant.
+Un graphique où l’utilisateur peut sélectionner un pays et une saison pour observer les performances du pays choisi par rapport au nombre d'athlètes sur l’ensemble des éditions où il était participant.
 
+Un graphique où l'utilisateur peut sélectionner un pays pour observer le nombre de de médailles obtenues lors des différents JO au cours du temps. Il est possible d'identifier les années où le pays choisi était hôte ainsi que les proportions des différentes médailles gagnées au sein d'un même pays. Si l'utilisateur passe la souris sur les barres du graphiques, il pourra lire les informations liées à l'édition concernée des JO.
+    Note pour l'utilisateur : Appuyer sur "trace 0" dans la légende pour avoir une meilleure vision du graphique.
+
+Un dernier graphique où l'utilisateur pourra observer les prédictions du classement pour les JO 2024 de Paris. (À noter que la Russie a été retirée des données en raison du conflit militaire et géo-polititque actuel).
