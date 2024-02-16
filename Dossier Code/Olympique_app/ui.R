@@ -1,4 +1,4 @@
-library(shiny); library(leaflet); library(ggplot2); library(dplyr); library(plotly); library(tidyr); library(gtranslate); library(data.table)
+library(shiny); library(leaflet); library(dplyr); library(plotly); library(tidyr); library(gtranslate); library(data.table); library(rsconnect)
 
 ###Initialisation
 
