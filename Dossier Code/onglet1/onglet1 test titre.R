@@ -80,8 +80,18 @@ server <- function(input, output) {
   # Créer le graphique global
   output$graphique_global <- renderPlotly({
     plot_hist <- plot_ly(
-      data_filtered(), x = ~Year, color = ~Medal, type = "histogram", 
-      colors = c("Gold" = "gold","Silver" = "grey","Bronze" = "darkgoldenrod")) %>%
+      data_filtered(), 
+      x = ~Year, 
+      color = ~Medal, 
+      type = "histogram", 
+      colors = c("Gold" = "gold", "Silver" = "grey", "Bronze" = "darkgoldenrod"),
+      text = ~paste(
+        "Année:", Year, "<br>",
+        "Médaille d'or:", sum(Medal == "Gold"), "<br>",
+        "Médaille d'argent:", sum(Medal == "Silver"), "<br>",
+        "Médaille de bronze:", sum(Medal == "Bronze")
+      )
+    ) %>%
       layout(
         xaxis = list(title = "Année"),
         yaxis = list(title = "Nombre de médailles"),
