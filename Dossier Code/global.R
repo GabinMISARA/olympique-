@@ -2,7 +2,6 @@ library(shiny)
 library(plotly)
 library(dplyr)
 library(tidyr)
-library(ggplot2)
 library(shinyWidgets)
 library(leaflet)
 library(gtranslate) 
@@ -31,15 +30,13 @@ pays <- data.frame(
 
 #### Onglet 1 ####
 # Spécifier l'URL du fichier CSV sur Kaggle
-first_year <- min(JO$Year, na.rm = TRUE)
+JO_filt <- datajo[complete.cases(datajo$Medal), ]
+first_year <- min(datajo$Year, na.rm = TRUE)
 # Liste des pays uniques
-unique_countries <- unique(JO$NOC)
-
-#### Onglet 2 ####
-JO_filt <- JO[complete.cases(JO$Medal), ]
+unique_countries <- unique(JO_filt$NOC)
 
 #### Onglet 1 & 2 ####
-JO_filt <- datajo[complete.cases(datajo$Medal), ]
+
 
 
 # Fonction pour traduire le nom du pays (NOC) en français avec une gestion des erreurs (aussi dans onglet 3)
