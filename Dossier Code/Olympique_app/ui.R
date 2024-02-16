@@ -95,7 +95,22 @@ fluidPage(
     background-size: 100px;
     background-position:right top;
     background-repeat: no-repeat;
-  }'))
+  }',
+                    "
+      .nav-tabs > li > a {
+        color: #fff; /* Couleur du texte des onglets */
+        background-color: #007bff !important; /* Couleur de fond des onglets (bleu) */
+        border-color: #007bff; /* Couleur de la bordure des onglets */
+      }
+      .nav-tabs > li.active > a,
+      .nav-tabs > li.active > a:hover,
+      .nav-tabs > li.active > a:focus {
+        background-color: #fff !important; /* Couleur de fond des onglets actifs (blanc) */
+        border-color: #0056b3; /* Couleur de la bordure des onglets actifs */
+      }
+    "                 
+                    ))
+  
   ),
   titlePanel("Résultats aux Jeux Olympiques sur 120 ans"),
   tabsetPanel(
