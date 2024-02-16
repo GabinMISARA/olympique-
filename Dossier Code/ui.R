@@ -95,9 +95,14 @@ fluidPage(
                  sidebarPanel(
                    tags$h4("Paramètres de filtrage"),
                    tags$br(),   # Saut de ligne
-                   checkboxGroupInput(inputId = "Saison2", label = "Sélectionnez la saison (graphique 1):", choices = c("Été" = "Summer", "Hiver" = "Winter"), selected = c("Summer", "Winter"), inline = TRUE),
+                   checkboxGroupInput(inputId = "Saison2", 
+                                      label = "Sélectionnez la saison (graphique 1):", 
+                                      choices = c("Été" = "Summer", "Hiver" = "Winter"), 
+                                      selected = c("Summer", "Winter"), inline = TRUE),
                    tags$br(),
-                   selectInput(inputId = "pays2", label = "Sélectionnez un pays:", choices = unique(tableau_final_hote$Team), selected = "Australia"),
+                   selectInput(inputId = "pays2", label = "Sélectionnez un pays:", 
+                               choices = unique(tableau_final_hote$Team), 
+                               selected = "Australia"),
                    pickerInput(
                      inputId = "pays3",
                      label = "Sélectionnez un pays (graphique 2) :",
@@ -114,9 +119,18 @@ fluidPage(
                  ),
                  mainPanel(
                    fluidRow(
-                     column(width = 12, style = "padding: 20px;", div(plotlyOutput("interactivePlot2"), style = "border: 2px solid #ccc; border-radius: 5px; margin-bottom: 20px;")),
-                     column(width = 12, style = "padding: 20px;", div(plotlyOutput("interactivePlot3"), style = "border: 2px solid #ccc; border-radius: 5px; margin-bottom: 20px;"), div(textOutput("pays_output"))),
-                     column(width = 12, style = "padding: 20px;", div(plotlyOutput("interactivePlot4"), style = "border: 2px solid #ccc; border-radius: 5px; margin-bottom: 20px;"))
+                     column(width = 12, style = "padding: 20px;", 
+                            div(plotlyOutput("interactivePlot2"), 
+                                style = "border: 2px solid #ccc; border-radius: 5px; margin-bottom: 20px;")),
+                     column(width = 12, 
+                            style = "padding: 20px;", 
+                            div(plotlyOutput("interactivePlot3"), 
+                                style = "border: 2px solid #ccc; border-radius: 5px; margin-bottom: 20px;"), 
+                            div(textOutput("pays_output"))),
+                     column(width = 12, 
+                            style = "padding: 20px;", 
+                            div(plotlyOutput("interactivePlot4"), 
+                                style = "border: 2px solid #ccc; border-radius: 5px; margin-bottom: 20px;"))
                    ),
                  )
                )
