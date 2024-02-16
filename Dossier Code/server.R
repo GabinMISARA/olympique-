@@ -145,10 +145,10 @@ function(input, output, session) {
   })
   
   output$interactivePlot3 <- renderPlotly({
-    req(input$pays)
+    req(input$pays3)
     
-    if (!is.null(input$pays)) {
-      datajo_Hote <- datajo[datajo$Team == input$pays, ]
+    if (!is.null(input$pays3)) {
+      datajo_Hote <- datajo[datajo$Team == input$pays3, ]
       
       datajo_Hote <- datajo_Hote %>%
         mutate(Medal_Gold = as.numeric(Medal == "Gold"),
@@ -174,7 +174,7 @@ function(input, output, session) {
                      "<br>Médailles d'or: ", medal_count2$Medal_Gold,
                      "<br>Médailles d'argent: ", medal_count2$Medal_Silver,
                      "<br>Médailles de bronze: ", medal_count2$Medal_Bronze,
-                     "<br>Pays hôte: ", input$pays,
+                     "<br>Pays hôte: ", input$pays3,
                      "<br>Ville: ", medal_count2$City)
       )
       
@@ -182,24 +182,24 @@ function(input, output, session) {
         y = ~medal_count2$Medal_Gold,
         name = 'Or',
         marker = list(color = 'gold', 
-                      line = list(color = ifelse(medal_count2$Year %in% datajo_Hote$Year[datajo_Hote$Host.country == input$pays], 'purple','transparent'), width = 2)
+                      line = list(color = ifelse(medal_count2$Year %in% datajo_Hote$Year[datajo_Hote$Host.country == input$pays3], 'purple','transparent'), width = 2)
         )) %>%
         add_trace(
           y = ~medal_count2$Medal_Silver,
           name = 'Argent',
           marker = list(color = 'silver',
-                        line = list(color = ifelse(medal_count2$Year %in% datajo_Hote$Year[datajo_Hote$Host.country == input$pays], 'purple','transparent'), width = 2)
+                        line = list(color = ifelse(medal_count2$Year %in% datajo_Hote$Year[datajo_Hote$Host.country == input$pays3], 'purple','transparent'), width = 2)
           )) %>%
         add_trace(
           y = ~medal_count2$Medal_Bronze,
           name = 'Bronze',
           marker = list(color = 'peru',
-                        line = list(color = ifelse(medal_count2$Year %in% datajo_Hote$Year[datajo_Hote$Host.country == input$pays], 'purple','transparent'), width = 2)
+                        line = list(color = ifelse(medal_count2$Year %in% datajo_Hote$Year[datajo_Hote$Host.country == input$pays3], 'purple','transparent'), width = 2)
           ))
       
       p <- p %>%
         layout(
-          title = paste("Nombre total de médailles pour", NPE(input$pays), ":"),
+          title = paste("Nombre total de médailles pour", NPE(input$pays3), ":"),
           xaxis = list(title = "Année (année hôte en violet)"),
           yaxis = list(title = "Nombre de médailles"),
           barmode = 'stack',  # Pour empiler les barres
